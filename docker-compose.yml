@@ -29,6 +29,8 @@ services:
       - db_data:/var/lib/mysql
       # 데이터베이스 초기화 스크립트 주석 처리
       # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --bind-address=0.0.0.0  # 모든 IP로 접근 허용
+
 
 volumes:
   db_data:
