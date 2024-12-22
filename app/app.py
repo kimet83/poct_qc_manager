@@ -18,8 +18,8 @@ import os
 app = Quart(__name__)
 
 # 환경 변수로 데이터베이스 설정
-DB_USER = os.getenv('DB_USER', 'root')
-DB_PASSWORD = os.getenv('DB_PASSWORD', 'password')
+DB_USER = os.getenv('DB_USER', 'myuser')
+DB_PASSWORD = os.getenv('DB_PASSWORD', 'mypassword')
 DB_HOST = os.getenv('DB_HOST', 'db')  # MariaDB 컨테이너 이름
 DB_PORT = os.getenv('DB_PORT', '3306')
 DB_NAME = os.getenv('DB_NAME', 'mydatabase')
@@ -27,15 +27,15 @@ DB_CHARSET = os.getenv('DB_CHARSET', 'utf8mb4')
 
 # SQLAlchemy 설정
 DATABASE_URL = f"mysql+aiomysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset={DB_CHARSET}"
-REAGENT_DATABASE_URL = f"mysql+aiomysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/REAGENT?charset={DB_CHARSET}"
+# REAGENT_DATABASE_URL = f"mysql+aiomysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/REAGENT?charset={DB_CHARSET}"
 BASE_DATABASE_URL = f"mysql+aiomysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/?charset={DB_CHARSET}"
 engine: AsyncEngine = create_async_engine(DATABASE_URL, echo=True)
-reagent_engine: AsyncEngine = create_async_engine(REAGENT_DATABASE_URL, echo=True)
+# reagent_engine: AsyncEngine = create_async_engine(REAGENT_DATABASE_URL, echo=True)
 base_engine: AsyncEngine = create_async_engine(BASE_DATABASE_URL, echo=True)
 SessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)
-ReagentSessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=reagent_engine)
+# ReagentSessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=reagent_engine)
 Base = declarative_base()
-ReagentBase = declarative_base()
+# ReagentBase = declarative_base()
 
 # 로깅 설정
 logging.basicConfig(
@@ -49,7 +49,7 @@ async def create_database_if_not_exists():
     """데이터베이스가 존재하지 않을 경우 생성"""
     async with base_engine.begin() as conn:
         await conn.execute(text(f"CREATE DATABASE IF NOT EXISTS {DB_NAME} CHARACTER SET {DB_CHARSET}"))
-        await conn.execute(text(f"CREATE DATABASE IF NOT EXISTS REAGENT CHARACTER SET {DB_CHARSET}"))
+        # await conn.execute(text(f"CREATE DATABASE IF NOT EXISTS REAGENT CHARACTER SET {DB_CHARSET}"))
         print(f"Databases '{DB_NAME}' and 'REAGENT' checked or created.")
 
 
@@ -147,16 +147,16 @@ class Result(Base):
     sign = relationship('Signs', back_populates='results')
 
 # 테이블: make_reagent
-class Make_reagent(ReagentBase):
-    __tablename__ = 'make_reagent'
+# class Make_reagent(ReagentBase):
+#     __tablename__ = 'make_reagent'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)  # 기본 키 추가
-    in_date = Column(Date, nullable=False)
-    name = Column(String(50), nullable=True)
-    date = Column(Date, nullable=True)
-    lot = Column(String(50), nullable=True)
-    exp_date = Column(Date, nullable=True)
-    close_date = Column(Date, nullable=True)
+#     id = Column(Integer, primary_key=True, autoincrement=True)  # 기본 키 추가
+#     in_date = Column(Date, nullable=False)
+#     name = Column(String(50), nullable=True)
+#     date = Column(Date, nullable=True)
+#     lot = Column(String(50), nullable=True)
+#     exp_date = Column(Date, nullable=True)
+#     close_date = Column(Date, nullable=True)
     
 
 @app.before_serving
@@ -165,8 +165,8 @@ async def setup_database():
     await create_database_if_not_exists()
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    async with reagent_engine.begin() as conn:
-        await conn.run_sync(ReagentBase.metadata.create_all)
+    # async with reagent_engine.begin() as conn:
+    #     await conn.run_sync(ReagentBase.metadata.create_all)
     print("Databases initialized.")
 
 @app.route('/test-connection')
