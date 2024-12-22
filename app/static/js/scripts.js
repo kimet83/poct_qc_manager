@@ -20,7 +20,7 @@ function requirePassword(tabId) {
 
 // 페이지 로드시 스크립트 실행
 document.addEventListener('DOMContentLoaded', () => {
-  loadPlaces();
+  // loadPlaces();
   loadPlaceList();
   loadDeviceList();
   loadSticks();
@@ -125,37 +125,37 @@ function getTodayDate() {
   return `${year}-${month}-${day}`;
 }
 
-function loadPlaces() {
-  // 장비등록, 정도관리 결과등록 장소목록 로드
-  fetch('/GetPlaces')
-    .then(response => response.json())
-    .then(data => {
-      // registerPlaceCode 업데이트
-      const registerPlaceSelect = document.getElementById('registerPlaceCode');
-      if (registerPlaceSelect) {
-        registerPlaceSelect.innerHTML = '<option value="" disabled selected>장소를 선택하세요</option>';
-        data.forEach(place => {
-          const option = document.createElement('option');
-          option.value = place.PlaceCode; // 입력 값
-          option.textContent = place.PlaceName; // 표시 값
-          registerPlaceSelect.appendChild(option);
-        });
-      }
+// function loadPlaces() {
+//   // 장비등록, 정도관리 결과등록 장소목록 로드
+//   fetch('/GetPlaces')
+//     .then(response => response.json())
+//     .then(data => {
+//       // registerPlaceCode 업데이트
+//       const registerPlaceSelect = document.getElementById('registerPlaceCode');
+//       if (registerPlaceSelect) {
+//         registerPlaceSelect.innerHTML = '<option value="" disabled selected>장소를 선택하세요</option>';
+//         data.forEach(place => {
+//           const option = document.createElement('option');
+//           option.value = place.PlaceCode; // 입력 값
+//           option.textContent = place.PlaceName; // 표시 값
+//           registerPlaceSelect.appendChild(option);
+//         });
+//       }
 
-      // placeSelect 업데이트
-      const placeSelect = document.getElementById('placeSelect');
-      if (placeSelect) {
-        placeSelect.innerHTML = '<option value="" disabled selected>장소를 선택하세요</option>';
-        data.forEach(place => {
-          const option = document.createElement('option');
-          option.value = place.PlaceCode; // 입력 값
-          option.textContent = place.PlaceName; // 표시 값
-          placeSelect.appendChild(option);
-        });
-      }
-    })
-    .catch(error => console.error('Error fetching places:', error));
-}
+//       // placeSelect 업데이트
+//       const placeSelect = document.getElementById('placeSelect');
+//       if (placeSelect) {
+//         placeSelect.innerHTML = '<option value="" disabled selected>장소를 선택하세요</option>';
+//         data.forEach(place => {
+//           const option = document.createElement('option');
+//           option.value = place.PlaceCode; // 입력 값
+//           option.textContent = place.PlaceName; // 표시 값
+//           placeSelect.appendChild(option);
+//         });
+//       }
+//     })
+//     .catch(error => console.error('Error fetching places:', error));
+// }
 
 function loadReplaceSerials(placeCode) {
   const replaceSerialSelect = document.getElementById('registerReplaceSerial'); // 장비관리의 교체장비 선택
@@ -403,22 +403,6 @@ function loadDeviceList() {
       });
     })
     .catch(error => console.error('Error fetching device list:', error));
-}
-
-
-
-// 장비 수정
-function editDevice(serial) {
-  alert(`Editing device with serial: ${serial}`);
-  // 수정 로직 추가
-}
-
-// 장비 폐기
-function deleteDevice(serial) {
-  if (confirm(`Are you sure you want to delete device with serial: ${serial}?`)) {
-    alert(`Device ${serial} deleted.`);
-    // 삭제 로직 추가
-  }
 }
 
 // 수정 모달에 데이터 채우기
@@ -1408,50 +1392,82 @@ function printDeviceTable() {
   newWindow.document.close();
   newWindow.print();
 }
+
 function loadPlaceList() {
-    console.log("loadPlaceList 함수 실행됨"); // 함수 실행 확인
+  console.log("loadPlaceList 함수 실행됨"); // 함수 실행 확인
+
+  // 테이블 요소 가져오기
+  const tableBody = document.getElementById('place-table-body');
+  const registerPlaceSelect = document.getElementById('registerPlaceCode');
+  const placeSelect = document.getElementById('placeSelect');
   
-    const tableBody = document.getElementById('place-table-body');
-    if (!tableBody) {
-      console.error("Error: 'place-table-body' 요소를 찾을 수 없습니다. HTML ID를 확인하세요.");
-      return;
-    }
-  
-    fetch('/GetPlaces')
+  fetch('/GetPlaces')
       .then(response => {
-        if (!response.ok) {
-          throw new Error(`서버 응답 오류: ${response.status}`);
-        }
-        return response.json();
+          if (!response.ok) {
+              throw new Error(`서버 응답 오류: ${response.status}`);
+          }
+          return response.json();
       })
       .then(data => {
-        console.log("API 응답 데이터:", data); // API 응답 확인
-        tableBody.innerHTML = ''; // 기존 데이터 초기화
-  
-        if (!Array.isArray(data)) {
-          throw new Error("API에서 예상치 못한 데이터 형식이 반환되었습니다.");
-        }
-  
-        data.forEach(place => {
-          const row = `
-            <tr>
-              <td>${place.PlaceCode || 'N/A'}</td>
-              <td>${place.PlaceClass || 'N/A'}</td>
-              <td>${place.PlaceName || 'N/A'}</td>
-              <td>
-                <button class="btn btn-primary btn-sm" onclick="editPlace(${place.PlaceId})">수정</button>
-                <button class="btn btn-danger btn-sm" onclick="deletePlace(${place.PlaceId})">삭제</button>
-              </td>
-            </tr>
-          `;
-          tableBody.innerHTML += row;
-        });
+          console.log("API 응답 데이터:", data); // API 응답 확인
+
+          if (!Array.isArray(data)) {
+              throw new Error("API에서 예상치 못한 데이터 형식이 반환되었습니다.");
+          }
+
+          // 📌 1. 장소 테이블 업데이트
+          if (tableBody) {
+              tableBody.innerHTML = ''; // 기존 데이터 초기화
+              data.forEach(place => {
+                  const row = `
+                      <tr>
+                          <td>${place.PlaceCode || 'N/A'}</td>
+                          <td>${place.PlaceClass || 'N/A'}</td>
+                          <td>${place.PlaceName || 'N/A'}</td>
+                          <td>
+                              <button class="btn btn-primary btn-sm" onclick="editPlace(${place.PlaceId})">수정</button>
+                              <button class="btn btn-danger btn-sm" onclick="deletePlace(${place.PlaceId})">삭제</button>
+                          </td>
+                      </tr>
+                  `;
+                  tableBody.innerHTML += row;
+              });
+          } else {
+              console.warn("Warning: 'place-table-body' 요소를 찾을 수 없습니다.");
+          }
+
+          // 📌 2. registerPlaceCode 드롭다운 업데이트
+          if (registerPlaceSelect) {
+              console.log("장소리스트 로드")
+              registerPlaceSelect.innerHTML = '<option value="" disabled selected>장소를 선택하세요</option>';
+              data.forEach(place => {
+                  const option = document.createElement('option');
+                  option.value = place.PlaceCode;
+                  option.textContent = place.PlaceName;
+                  registerPlaceSelect.appendChild(option);
+              });
+          } else {
+              console.warn("Warning: 'registerPlaceCode' 요소를 찾을 수 없습니다.");
+          }
+
+          // 📌 3. placeSelect 드롭다운 업데이트
+          if (placeSelect) {
+              placeSelect.innerHTML = '<option value="" disabled selected>장소를 선택하세요</option>';
+              data.forEach(place => {
+                  const option = document.createElement('option');
+                  option.value = place.PlaceCode;
+                  option.textContent = place.PlaceName;
+                  placeSelect.appendChild(option);
+              });
+          } else {
+              console.warn("Warning: 'placeSelect' 요소를 찾을 수 없습니다.");
+          }
       })
       .catch(error => {
-        console.error('Error in loadPlaceList:', error);
-        alert('장소 목록을 불러오는 중 오류가 발생했습니다.');
+          console.error('Error in loadPlaceList:', error);
+          alert('장소 목록을 불러오는 중 오류가 발생했습니다.');
       });
-  }
+}
   function registerPlace() {
     const data = {
       PlaceCode: document.getElementById('PlaceCode').value,
