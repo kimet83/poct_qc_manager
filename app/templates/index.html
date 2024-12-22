@@ -36,7 +36,8 @@
           onclick="requirePassword('report-tab')">결과보고</button>
       </li>
       <li class="nav-item">
-        <button class="nav-link" id="place-tab" data-bs-toggle="tab" data-bs-target="#place" type="button" role="tab">장소관리</button>
+        <button class="nav-link" id="place-tab" data-bs-toggle="tab" data-bs-target="#place" type="button"
+          role="tab">장소관리</button>
       </li>
     </ul>
 
@@ -274,9 +275,11 @@
                   <label for="qcExpDate" class="form-label">QC ExpDate</label>
                   <input type="date" class="form-control" id="qcExpDate">
                 </div>
-                <button class="btn btn-primary mt-3" onclick="saveQcReagent()">QC 시약 정보 저장</button>
+
               </div>
+              <button class="btn btn-primary mt-3" onclick="saveQcReagent()">QC 시약 정보 저장</button>
             </div>
+
             <!-- 일괄 저장 버튼 -->
             <button id="saveAllButton" class="btn btn-success mt-3">일괄 저장</button>
           </div>
@@ -387,20 +390,26 @@
           </div>
         </div>
       </div>
+      <!-- 장소 관리 -->
       <div class="tab-pane fade" id="place" role="tabpanel" aria-labelledby="place-tab">
         <h2>장소 관리</h2>
+
+        <!-- 서브탭 메뉴 -->
         <ul class="nav nav-pills my-3" id="placeSubTab" role="tablist">
           <li class="nav-item">
-            <button class="nav-link active" id="place-register-tab" data-bs-toggle="tab" data-bs-target="#place-register" type="button" role="tab">장소 등록</button>
+            <button class="nav-link active" id="place-register-tab" data-bs-toggle="tab"
+              data-bs-target="#place-register" type="button" role="tab">장소 등록</button>
           </li>
           <li class="nav-item">
-            <button class="nav-link" id="place-modify-tab" data-bs-toggle="tab" data-bs-target="#place-modify" type="button" role="tab">장소 수정/삭제</button>
+            <button class="nav-link" id="place-modify-tab" data-bs-toggle="tab" data-bs-target="#place-modify"
+              type="button" role="tab">장소 수정/삭제</button>
           </li>
         </ul>
-      
+
         <div class="tab-content">
           <!-- 장소 등록 -->
-          <div class="tab-pane fade show active" id="place-register" role="tabpanel" aria-labelledby="place-register-tab">
+          <div class="tab-pane fade show active" id="place-register" role="tabpanel"
+            aria-labelledby="place-register-tab">
             <h3>장소 등록</h3>
             <form id="placeRegisterForm">
               <div class="mb-3">
@@ -415,13 +424,15 @@
                 <label for="PlaceName" class="form-label">장소 이름</label>
                 <input type="text" class="form-control" id="PlaceName">
               </div>
-              <button type="button" class="btn btn-primary" onclick="registerPlace()">저장</button>
+              <button type="button" class="btn btn-primary" onclick="registerPlace()">등록</button>
             </form>
           </div>
-      
+
           <!-- 장소 수정/삭제 -->
           <div class="tab-pane fade" id="place-modify" role="tabpanel" aria-labelledby="place-modify-tab">
             <h3>장소 수정/삭제</h3>
+            <button type="button" class="btn btn-info mb-3" onclick="printPlaceTable()">출력</button>
+
             <div class="table-responsive">
               <table class="table table-striped">
                 <thead>
