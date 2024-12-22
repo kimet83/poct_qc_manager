@@ -935,31 +935,56 @@ document.getElementById('saveSignature').addEventListener('click', async () => {
     alert('저장 중 오류가 발생했습니다.');
   }
 });
-// QC 시약 데이터를 로드
-function loadQcReagent() {
-  fetch('/GetQcReagent')
+// QC 시약 정보 저장 함수
+function saveQcReagent() {
+  const qcLot = document.getElementById('qcLot').value;
+  const qcExpDate = document.getElementById('qcExpDate').value;
+
+  if (!qcLot || !qcExpDate) {
+    alert('QC Lot와 유효기간은 필수 입력 항목입니다.');
+    return;
+  }
+
+  const qcData = {
+    lot: qcLot,
+    exp_date: qcExpDate
+  };
+
+  fetch('/UpdateQcReagent', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(qcData),
+  })
     .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to fetch QC reagent data');
-      }
+      if (!response.ok) throw new Error('Failed to save QC Reagent data');
       return response.json();
     })
     .then(data => {
-      const qcLotInput = document.getElementById('qcLot');
-      const qcExpDateInput = document.getElementById('qcExpDate');
-
-      if (data && data.lot && data.exp_date) {
-        // API 응답 데이터의 필드를 정확히 참조
-        qcLotInput.value = data.lot; // 'lot' 값을 QC Lot 입력 필드에 설정
-        qcExpDateInput.value = data.exp_date; // 'exp_date' 값을 QC Exp Date 필드에 설정
-      } else {
-        console.warn('QC reagent data is empty or incomplete');
-      }
+      alert(data.message || 'QC 시약 정보가 성공적으로 저장되었습니다!');
+      loadQcReagent(); // QC 정보 다시 불러오기
     })
     .catch(error => {
-      console.error('Error loading QC reagent data:', error);
+      console.error('Error saving QC Reagent:', error);
+      alert('QC 시약 정보를 저장하는 중 오류가 발생했습니다.');
     });
 }
+
+// QC 시약 정보 불러오기
+function loadQcReagent() {
+  fetch('/GetQcReagent')
+    .then(response => {
+      if (!response.ok) throw new Error('Failed to fetch QC reagent data');
+      return response.json();
+    })
+    .then(data => {
+      document.getElementById('qcLot').value = data.lot || '';
+      document.getElementById('qcExpDate').value = data.exp_date || '';
+    })
+    .catch(error => {
+      console.error('Error loading QC reagent:', error);
+    });
+}
+
 // QC 결과 날짜 변경 이벤트 핸들러
 function handleQcDateChange() {
   const selectedDate = document.getElementById('qcDateSearch').value;

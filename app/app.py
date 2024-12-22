@@ -635,7 +635,9 @@ async def save_sign():
 #             }), 200
 @app.route('/GetQcReagent', methods=['GET'])
 async def get_qc_reagent():
-    """JSON 파일에서 'POCT Control' 데이터를 검색"""
+    """
+    JSON 파일에서 QC Lot와 유효기간만 반환
+    """
     try:
         # JSON 파일 경로 설정
         json_file_path = os.path.join(os.getcwd(), 'qc_reagents.json')
@@ -653,15 +655,12 @@ async def get_qc_reagent():
                 logging.error(f"JSON 파싱 오류: {str(e)}")
                 return jsonify({"error": "Failed to parse JSON file"}), 500
 
-        # 'POCT Control' 데이터 검색
-        reagent = next(
-            (r for r in reagents if r.get('name') == 'POCT Control' and r.get('close_date') is None),
-            None
-        )
+        # 첫 번째 항목만 반환
+        reagent = reagents[0] if reagents else None
 
         if not reagent:
             logging.info("조건에 맞는 QC reagent가 없습니다.")
-            return jsonify({"error": "No reagent found matching criteria"}), 404
+            return jsonify({"error": "No reagent found"}), 404
 
         # JSON 형태로 데이터 반환
         return jsonify({
@@ -981,6 +980,59 @@ async def generate_report():
     except Exception as e:
         logging.error(f"Error generating report: {str(e)}")
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+
+@app.route('/UpdateQcReagent', methods=['POST'])
+async def update_qc_reagent():
+    """
+    QC 시약 정보를 QC Lot와 유효기간만 유지하며 수정 또는 생성
+    """
+    try:
+        # JSON 데이터 수신
+        data = await request.json
+        lot = data.get('lot')
+        exp_date = data.get('exp_date')
+
+        if not lot or not exp_date:
+            return jsonify({"error": "'lot'과 'exp_date'는 필수 항목입니다."}), 400
+
+        # JSON 파일 경로
+        json_file_path = os.path.join(os.getcwd(), 'qc_reagents.json')
+
+        # 파일 읽기
+        if os.path.exists(json_file_path):
+            with open(json_file_path, 'r', encoding='utf-8') as file:
+                try:
+                    reagents = json.load(file)
+                except json.JSONDecodeError as e:
+                    logging.error(f"JSON 파싱 오류: {str(e)}")
+                    return jsonify({"error": "JSON 파일을 읽을 수 없습니다."}), 500
+        else:
+            reagents = []
+
+        # 기존 QC Reagent 확인 및 수정
+        if reagents:
+            # 첫 번째 항목만 수정 (단일 항목 유지)
+            reagent = reagents[0]
+            reagent['lot'] = lot
+            reagent['exp_date'] = exp_date
+            message = "QC Reagent 정보가 수정되었습니다."
+        else:
+            # 항목이 없으면 새로 추가
+            reagents.append({
+                "lot": lot,
+                "exp_date": exp_date
+            })
+            message = "QC Reagent 정보가 등록되었습니다."
+
+        # JSON 파일 다시 저장
+        with open(json_file_path, 'w', encoding='utf-8') as file:
+            json.dump(reagents, file, indent=4, ensure_ascii=False)
+
+        return jsonify({"message": message}), 200
+
+    except Exception as e:
+        logging.error(f"QC Reagent 업데이트 중 오류 발생: {traceback.format_exc()}")
+        return jsonify({"error": f"예상치 못한 오류: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5012, debug=True)
