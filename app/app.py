@@ -6,6 +6,7 @@ from sqlalchemy import Column, Integer, String, Text, Date, Boolean, Enum, TIMES
 from sqlalchemy.sql import func, text
 from sqlalchemy.future import select
 import aiomysql
+import json
 # from host import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME, DB_CHARSET
 from barcode import analyze_barcode  # barcode.py에 정의된 함수
 import uuid
@@ -583,17 +584,27 @@ async def get_qc_reagent():
         # JSON 파일 경로 설정
         json_file_path = os.path.join(os.getcwd(), 'qc_reagents.json')
 
-        # JSON 파일 읽기
+        # JSON 파일 존재 여부 확인
         if not os.path.exists(json_file_path):
+            logging.error("qc_reagents.json 파일이 존재하지 않습니다.")
             return jsonify({"error": "QC reagent file not found"}), 404
 
+        # JSON 파일 읽기
         with open(json_file_path, 'r', encoding='utf-8') as file:
-            reagents = json.load(file)
+            try:
+                reagents = json.load(file)
+            except json.JSONDecodeError as e:
+                logging.error(f"JSON 파싱 오류: {str(e)}")
+                return jsonify({"error": "Failed to parse JSON file"}), 500
 
         # 'POCT Control' 데이터 검색
-        reagent = next((r for r in reagents if r.get('name') == 'POCT Control' and r.get('close_date') is None), None)
+        reagent = next(
+            (r for r in reagents if r.get('name') == 'POCT Control' and r.get('close_date') is None),
+            None
+        )
 
         if not reagent:
+            logging.info("조건에 맞는 QC reagent가 없습니다.")
             return jsonify({"error": "No reagent found matching criteria"}), 404
 
         # JSON 형태로 데이터 반환
@@ -603,7 +614,7 @@ async def get_qc_reagent():
         }), 200
 
     except Exception as e:
-        logging.error(f"Error reading QC reagent JSON: {traceback.format_exc()}")
+        logging.error(f"예상치 못한 오류 발생: {traceback.format_exc()}")
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 @app.route('/saveResults', methods=['POST'])
