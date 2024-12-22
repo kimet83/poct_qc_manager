@@ -1409,19 +1409,35 @@ function printDeviceTable() {
   newWindow.print();
 }
 function loadPlaceList() {
-    console.log("LoadPlaceList")
+    console.log("loadPlaceList 함수 실행됨"); // 함수 실행 확인
+  
+    const tableBody = document.getElementById('place-table-body');
+    if (!tableBody) {
+      console.error("Error: 'place-table-body' 요소를 찾을 수 없습니다. HTML ID를 확인하세요.");
+      return;
+    }
+  
     fetch('/GetPlaces')
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`서버 응답 오류: ${response.status}`);
+        }
+        return response.json();
+      })
       .then(data => {
-        const tableBody = document.getElementById('place-table-body');
+        console.log("API 응답 데이터:", data); // API 응답 확인
         tableBody.innerHTML = ''; // 기존 데이터 초기화
+  
+        if (!Array.isArray(data)) {
+          throw new Error("API에서 예상치 못한 데이터 형식이 반환되었습니다.");
+        }
   
         data.forEach(place => {
           const row = `
             <tr>
-              <td>${place.PlaceCode}</td>
-              <td>${place.PlaceClass}</td>
-              <td>${place.PlaceName}</td>
+              <td>${place.PlaceCode || 'N/A'}</td>
+              <td>${place.PlaceClass || 'N/A'}</td>
+              <td>${place.PlaceName || 'N/A'}</td>
               <td>
                 <button class="btn btn-primary btn-sm" onclick="editPlace(${place.PlaceId})">수정</button>
                 <button class="btn btn-danger btn-sm" onclick="deletePlace(${place.PlaceId})">삭제</button>
@@ -1432,7 +1448,7 @@ function loadPlaceList() {
         });
       })
       .catch(error => {
-        console.error('Error loading places:', error);
+        console.error('Error in loadPlaceList:', error);
         alert('장소 목록을 불러오는 중 오류가 발생했습니다.');
       });
   }
