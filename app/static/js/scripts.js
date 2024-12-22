@@ -21,6 +21,7 @@ function requirePassword(tabId) {
 // 페이지 로드시 스크립트 실행
 document.addEventListener('DOMContentLoaded', () => {
   loadPlaces();
+  loadPlaceList();
   loadDeviceList();
   loadSticks();
   setDefaultDates();
@@ -1407,3 +1408,136 @@ function printDeviceTable() {
   newWindow.document.close();
   newWindow.print();
 }
+function loadPlaceList() {
+    console.log("LoadPlaceList")
+    fetch('/GetPlaces')
+      .then(response => response.json())
+      .then(data => {
+        const tableBody = document.getElementById('place-table-body');
+        tableBody.innerHTML = ''; // 기존 데이터 초기화
+  
+        data.forEach(place => {
+          const row = `
+            <tr>
+              <td>${place.PlaceCode}</td>
+              <td>${place.PlaceClass}</td>
+              <td>${place.PlaceName}</td>
+              <td>
+                <button class="btn btn-primary btn-sm" onclick="editPlace(${place.PlaceId})">수정</button>
+                <button class="btn btn-danger btn-sm" onclick="deletePlace(${place.PlaceId})">삭제</button>
+              </td>
+            </tr>
+          `;
+          tableBody.innerHTML += row;
+        });
+      })
+      .catch(error => {
+        console.error('Error loading places:', error);
+        alert('장소 목록을 불러오는 중 오류가 발생했습니다.');
+      });
+  }
+  function registerPlace() {
+    const data = {
+      PlaceCode: document.getElementById('PlaceCode').value,
+      PlaceClass: document.getElementById('PlaceClass').value,
+      PlaceName: document.getElementById('PlaceName').value
+    };
+  
+    if (!data.PlaceCode || !data.PlaceClass || !data.PlaceName) {
+      alert('모든 필수 항목을 입력해주세요.');
+      return;
+    }
+  
+    fetch('/RegisterPlace', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+      .then(response => response.json())
+      .then(result => {
+        if (result.message) {
+          alert(result.message);
+          document.getElementById('placeRegisterForm').reset();
+          loadPlaceList(); // 목록 새로고침
+        } else {
+          alert(result.error || '등록에 실패했습니다.');
+        }
+      })
+      .catch(error => {
+        console.error('Error registering place:', error);
+        alert('장소 등록 중 오류가 발생했습니다.');
+      });
+  }
+  function editPlace(placeId) {
+    fetch(`/GetPlaces`)
+      .then(response => response.json())
+      .then(data => {
+        const place = data.find(p => p.PlaceId === placeId);
+        if (!place) {
+          alert('장소 정보를 찾을 수 없습니다.');
+          return;
+        }
+  
+        // 모달에 데이터 채우기
+        document.getElementById('editPlaceId').value = place.PlaceId;
+        document.getElementById('editPlaceCode').value = place.PlaceCode;
+        document.getElementById('editPlaceClass').value = place.PlaceClass;
+        document.getElementById('editPlaceName').value = place.PlaceName;
+  
+        // 모달 표시
+        new bootstrap.Modal(document.getElementById('editPlaceModal')).show();
+      })
+      .catch(error => {
+        console.error('Error fetching place details:', error);
+        alert('장소 정보를 불러오는 중 오류가 발생했습니다.');
+      });
+  }
+  function savePlaceEdit() {
+    const data = {
+      PlaceCode: document.getElementById('editPlaceCode').value,
+      PlaceClass: document.getElementById('editPlaceClass').value,
+      PlaceName: document.getElementById('editPlaceName').value
+    };
+  
+    const placeId = document.getElementById('editPlaceId').value;
+  
+    fetch(`/UpdatePlace/${placeId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+      .then(response => response.json())
+      .then(result => {
+        if (result.message) {
+          alert(result.message);
+          loadPlaceList(); // 목록 새로고침
+          bootstrap.Modal.getInstance(document.getElementById('editPlaceModal')).hide();
+        } else {
+          alert(result.error || '수정에 실패했습니다.');
+        }
+      })
+      .catch(error => {
+        console.error('Error updating place:', error);
+        alert('장소 수정 중 오류가 발생했습니다.');
+      });
+  }
+  function deletePlace(placeId) {
+    if (!confirm('정말로 이 장소를 삭제하시겠습니까?')) return;
+  
+    fetch(`/DeletePlace/${placeId}`, {
+      method: 'DELETE'
+    })
+      .then(response => response.json())
+      .then(result => {
+        if (result.message) {
+          alert(result.message);
+          loadPlaceList(); // 목록 새로고침
+        } else {
+          alert(result.error || '삭제에 실패했습니다.');
+        }
+      })
+      .catch(error => {
+        console.error('Error deleting place:', error);
+        alert('장소 삭제 중 오류가 발생했습니다.');
+      });
+  }

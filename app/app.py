@@ -232,12 +232,68 @@ async def get_places():
             # 데이터를 JSON 형태로 변환
             place_list = [
                 {
+                    "PlaceId": place.PlaceId,
                     "PlaceCode": place.PlaceCode,
-                    "PlaceName": place.PlaceName
+                    "PlaceClass": place.PlaceClass,
+                    "PlaceName": place.PlaceName,
                 }
                 for place in places
             ]
             return jsonify(place_list)
+
+@app.route('/RegisterPlace', methods=['POST'])
+async def register_place():
+    """장소 등록"""
+    data = await request.json
+
+    required_fields = ['PlaceCode', 'PlaceClass', 'PlaceName']
+    if not all(field in data for field in required_fields):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    async with SessionLocal() as session:
+        async with session.begin():
+            new_place = Place(
+                PlaceCode=data['PlaceCode'],
+                PlaceClass=data['PlaceClass'],
+                PlaceName=data['PlaceName']
+            )
+            session.add(new_place)
+            await session.commit()
+
+    return jsonify({"message": "Place registered successfully"}), 201
+
+@app.route('/UpdatePlace/<int:place_id>', methods=['PUT'])
+async def update_place(place_id):
+    """장소 수정"""
+    data = await request.json
+
+    async with SessionLocal() as session:
+        async with session.begin():
+            place = await session.get(Place, place_id)
+            if not place:
+                return jsonify({"error": "Place not found"}), 404
+
+            place.PlaceCode = data.get('PlaceCode', place.PlaceCode)
+            place.PlaceClass = data.get('PlaceClass', place.PlaceClass)
+            place.PlaceName = data.get('PlaceName', place.PlaceName)
+
+            await session.commit()
+
+    return jsonify({"message": "Place updated successfully"}), 200
+
+@app.route('/DeletePlace/<int:place_id>', methods=['DELETE'])
+async def delete_place(place_id):
+    """장소 삭제"""
+    async with SessionLocal() as session:
+        async with session.begin():
+            place = await session.get(Place, place_id)
+            if not place:
+                return jsonify({"error": "Place not found"}), 404
+
+            await session.delete(place)
+            await session.commit()
+
+    return jsonify({"message": "Place deleted successfully"}), 200
 
 @app.route('/GetActiveSerials', methods=['GET'])
 async def get_active_serials():
