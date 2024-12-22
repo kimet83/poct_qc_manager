@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap');
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.footer {
+  background-color: #333;
+  color: #fff;
+  padding: 20px 0;
+}
+
+.footer a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* 테이블 기본 스타일 */
+table.table-sm {
+  text-align: center;
+}
+
+table.table-sm th,
+table.table-sm td {
+  vertical-align: middle;
+}
+
+/* Inactive 장비 스타일 */
+.table-secondary {
+  background-color: #f8f9fa;
+  color: #6c757d;
+}
+
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .show-on-mobile {
+    display: table-cell !important;
+  }
+
+  .table-secondary {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hide-on-mobile {
+    display: table-cell !important;
+  }
+
+  .show-on-mobile {
+    display: none !important;
+  }
+}
+
+/* 프린트 스타일 */
+@media print {
+  body {
+    font-size: 12px;
+    color: #000;
+  }
+
+  table.table-sm {
+    text-align: center;
+  }
+
+  table.table-sm th,
+  table.table-sm td {
+    vertical-align: middle;
+  }
+
+  button {
+    display: none;
+  }
+}
