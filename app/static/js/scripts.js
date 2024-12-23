@@ -1,7 +1,26 @@
+// let passwordVerified = false;
+
+// // 암호 확인 함수
+// function requirePassword(tabId) {
+//   if (passwordVerified) {
+//     // 이미 암호를 입력했다면 바로 탭 활성화
+//     document.getElementById(tabId).click();
+//     return;
+//   }
+
+//   const password = prompt('접근 암호를 입력하세요:');
+//   if (password === '1022') { // 원하는 암호로 변경
+//     passwordVerified = true; // 암호가 올바르면 상태 변경
+//     document.getElementById(tabId).click();
+//   } else {
+//     alert('잘못된 암호입니다.');
+//     document.getElementById('qc-tab').click();
+//   }
+// }
 let passwordVerified = false;
 
 // 암호 확인 함수
-function requirePassword(tabId) {
+async function requirePassword(tabId) {
   if (passwordVerified) {
     // 이미 암호를 입력했다면 바로 탭 활성화
     document.getElementById(tabId).click();
@@ -9,12 +28,32 @@ function requirePassword(tabId) {
   }
 
   const password = prompt('접근 암호를 입력하세요:');
-  if (password === '1022') { // 원하는 암호로 변경
-    passwordVerified = true; // 암호가 올바르면 상태 변경
-    document.getElementById(tabId).click();
-  } else {
-    alert('잘못된 암호입니다.');
-    document.getElementById('qc-tab').click();
+  if (!password) {
+    alert('암호를 입력해주세요.');
+    return;
+  }
+
+  try {
+    const response = await fetch('/verify-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ password })
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.verified) {
+      passwordVerified = true; // 암호가 올바르면 상태 변경
+      document.getElementById(tabId).click();
+    } else {
+      alert(result.message || '잘못된 암호입니다.');
+      document.getElementById('qc-tab').click();
+    }
+  } catch (error) {
+    console.error('Error verifying password:', error);
+    alert('서버 오류가 발생했습니다.');
   }
 }
 
