@@ -13,7 +13,7 @@ services:
       DATABASE_PASSWORD: mypassword
       DATABASE_NAME: mydatabase
       ACCESS_PASSWORD: "1022"  # 접근 암호 환경 변수 추가
-      PROTECTED_TABS: "device-tab,report-tab"  # 암호가 필요한 탭 ID 목록 [device-tab,stick-tab,qc-tab,report-tab,place-tab]
+      PROTECTED_TABS: "device,report"  # 암호가 필요한 탭 ID 목록 [device,stick,qc,report,place]
     depends_on:
       - db
 

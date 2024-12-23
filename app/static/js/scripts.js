@@ -26,6 +26,7 @@ async function fetchProtectedTabs() {
     const response = await fetch('/protected-tabs');
     const result = await response.json();
     protectedTabs = result.protected_tabs || [];
+    console.log("load protected tab", protectedTabs)
   } catch (error) {
     console.error('Error fetching protected tabs:', error);
   }
@@ -36,6 +37,7 @@ fetchProtectedTabs();
 
 // 암호 확인 함수
 async function requirePassword(tabId) {
+  console.log("tab!!")
   // 보호된 탭이 아니면 바로 활성화
   if (!protectedTabs.includes(tabId)) {
     document.getElementById(tabId).click();
@@ -69,6 +71,7 @@ async function requirePassword(tabId) {
       document.getElementById(tabId).click();
     } else {
       alert(result.message || '잘못된 암호입니다.');
+      document.getElementById('qc-tab').click();
     }
   } catch (error) {
     console.error('Error verifying password:', error);
@@ -76,52 +79,44 @@ async function requirePassword(tabId) {
   }
 }
 
-// 모든 탭에 이벤트 리스너 추가 (자동 적용)
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.nav-link').forEach((tab) => {
-    tab.addEventListener('click', (event) => {
-      const tabId = tab.id.replace('-tab', ''); // tab ID 추출
-      event.preventDefault(); // 기본 동작 방지
-      requirePassword(tabId); // 암호 확인 함수 호출
-    });
-  });
-});
+  // 보호된 탭 목록 불러오기
+  fetchProtectedTabs();
 
-// 페이지 로드시 스크립트 실행
-document.addEventListener('DOMContentLoaded', () => {
-  // loadPlaces();
+  // 메뉴 탭 클릭 시 암호 검증
+  document.getElementById('menuTab').addEventListener('click', (event) => {
+    const clickedTab = event.target.closest('.nav-link');
+    if (!clickedTab) return;
+
+    const tabId = clickedTab.id.replace('-tab', '');
+    event.preventDefault(); // 기본 동작 방지
+    requirePassword(tabId);
+  });
+
+  // 페이지 초기화 관련 함수 호출
   loadPlaceList();
   loadDeviceList();
   loadSticks();
   setDefaultDates();
   setupPlaceCodeChangeListener();
   setupQcPlaceCodeChangeListener();
-  loadQcReagent(); // QC 시약 데이터를 로드
-  loadQcResults(); // 결과 확인 테이블 자동 로드 추가
-  adjustTableForMobile(); // 로드시 테이블 조정
+  loadQcReagent();
+  loadQcResults();
+  adjustTableForMobile();
 
-  const hash = window.location.hash.replace('#', ''); // 해시값 가져오기
+  // URL 해시를 기반으로 탭 활성화
+  const hash = window.location.hash.replace('#', '');
   if (hash) {
     const [mainTabId, subTabId] = hash.split(',');
 
-    // 메인 탭 활성화
     if (mainTabId) {
-      if (mainTabId === 'device-tab' || mainTabId === 'report-tab') {
-        // 암호가 필요한 탭인 경우
-        requirePassword(mainTabId);
-      } else {
-        const mainTab = document.getElementById(mainTabId);
-        if (mainTab) mainTab.click();
-      }
+      requirePassword(mainTabId);
     }
-
-    // 서브 탭 활성화
     if (subTabId) {
       const subTab = document.getElementById(subTabId);
       if (subTab) subTab.click();
     }
   } else {
-    // 기본적으로 정도관리 메뉴 활성화
     document.getElementById('qc-tab').click();
   }
 });
