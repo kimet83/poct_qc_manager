@@ -18,11 +18,31 @@
 //   }
 // }
 let passwordVerified = false;
+let protectedTabs = [];
+
+// 보호된 탭 목록 가져오기
+async function fetchProtectedTabs() {
+  try {
+    const response = await fetch('/protected-tabs');
+    const result = await response.json();
+    protectedTabs = result.protected_tabs || [];
+  } catch (error) {
+    console.error('Error fetching protected tabs:', error);
+  }
+}
+
+// 초기화 시 보호된 탭 목록 가져오기
+fetchProtectedTabs();
 
 // 암호 확인 함수
 async function requirePassword(tabId) {
+  // 보호된 탭이 아니면 바로 활성화
+  if (!protectedTabs.includes(tabId)) {
+    document.getElementById(tabId).click();
+    return;
+  }
+
   if (passwordVerified) {
-    // 이미 암호를 입력했다면 바로 탭 활성화
     document.getElementById(tabId).click();
     return;
   }
@@ -45,11 +65,10 @@ async function requirePassword(tabId) {
     const result = await response.json();
 
     if (response.ok && result.verified) {
-      passwordVerified = true; // 암호가 올바르면 상태 변경
+      passwordVerified = true;
       document.getElementById(tabId).click();
     } else {
       alert(result.message || '잘못된 암호입니다.');
-      document.getElementById('qc-tab').click();
     }
   } catch (error) {
     console.error('Error verifying password:', error);
