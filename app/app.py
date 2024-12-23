@@ -24,6 +24,8 @@ DB_HOST = os.getenv('DB_HOST', 'db')  # MariaDB 컨테이너 이름
 DB_PORT = os.getenv('DB_PORT', '3306')
 DB_NAME = os.getenv('DB_NAME', 'mydatabase')
 DB_CHARSET = os.getenv('DB_CHARSET', 'utf8mb4')
+# 환경 변수에서 접근 암호 가져오기
+ACCESS_PASSWORD = os.getenv('ACCESS_PASSWORD', '1022')
 
 # SQLAlchemy 설정
 DATABASE_URL = f"mysql+aiomysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset={DB_CHARSET}"
@@ -984,6 +986,17 @@ async def update_qc_reagent():
     except Exception as e:
         logging.error(f"QC Reagent 업데이트 중 오류 발생: {traceback.format_exc()}")
         return jsonify({"error": f"예상치 못한 오류: {str(e)}"}), 500
+        
+@app.route('/verify-password', methods=['POST'])
+async def verify_password():
+    """암호 확인 API"""
+    data = await request.get_json()
+    password = data.get('password')
 
+    if password == ACCESS_PASSWORD:
+        return jsonify({"verified": True}), 200
+    else:
+        return jsonify({"verified": False, "message": "Invalid password"}), 401
+        
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5012, debug=True)
