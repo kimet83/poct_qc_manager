@@ -12,6 +12,7 @@ services:
       DATABASE_USER: myuser
       DATABASE_PASSWORD: mypassword
       DATABASE_NAME: mydatabase
+      ACCESS_PASSWORD: "1022"  # 접근 암호 환경 변수 추가
     depends_on:
       - db
 
