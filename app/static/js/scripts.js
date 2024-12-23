@@ -26,32 +26,33 @@ async function fetchProtectedTabs() {
     const response = await fetch('/protected-tabs');
     const result = await response.json();
     protectedTabs = result.protected_tabs || [];
-    console.log("load protected tab", protectedTabs)
+    console.log("Protected tabs loaded:", protectedTabs);
   } catch (error) {
     console.error('Error fetching protected tabs:', error);
   }
 }
 
-// 초기화 시 보호된 탭 목록 가져오기
-fetchProtectedTabs();
-
 // 암호 확인 함수
 async function requirePassword(tabId) {
-  console.log("tab!!")
+  console.log("Clicked tab ID:", tabId);
+
   // 보호된 탭이 아니면 바로 활성화
   if (!protectedTabs.includes(tabId)) {
-    document.getElementById(tabId).click();
+    document.getElementById(`${tabId}-tab`).click();
     return;
   }
 
+  // 이미 인증된 경우 바로 탭 활성화
   if (passwordVerified) {
-    document.getElementById(tabId).click();
+    document.getElementById(`${tabId}-tab`).click();
     return;
   }
 
   const password = prompt('접근 암호를 입력하세요:');
   if (!password) {
     alert('암호를 입력해주세요.');
+    // 암호 입력이 취소되면 QC 탭으로 강제 이동
+    document.getElementById('qc-tab').click();
     return;
   }
 
@@ -68,16 +69,22 @@ async function requirePassword(tabId) {
 
     if (response.ok && result.verified) {
       passwordVerified = true;
-      document.getElementById(tabId).click();
+      document.getElementById(`${tabId}-tab`).click();
     } else {
       alert(result.message || '잘못된 암호입니다.');
+      // 암호가 틀렸을 경우 QC 탭으로 강제 전환
       document.getElementById('qc-tab').click();
     }
   } catch (error) {
     console.error('Error verifying password:', error);
     alert('서버 오류가 발생했습니다.');
+    // 오류 발생 시 QC 탭으로 강제 전환
+    document.getElementById('qc-tab').click();
   }
 }
+
+// 초기 보호된 탭 목록 가져오기
+// document.addEventListener('DOMContentLoaded', fetchProtectedTabs);
 
 document.addEventListener('DOMContentLoaded', () => {
   // 보호된 탭 목록 불러오기

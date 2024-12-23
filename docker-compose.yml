@@ -5,15 +5,15 @@ services:
     build:
       context: ./app
     ports:
-      - "5012:5012"
+      - "${APP_PORT}:${APP_PORT}"
     environment:
-      DATABASE_HOST: db
-      DATABASE_PORT: 3306
-      DATABASE_USER: myuser
-      DATABASE_PASSWORD: mypassword
-      DATABASE_NAME: mydatabase
-      ACCESS_PASSWORD: "1022"  # 접근 암호 환경 변수 추가
-      PROTECTED_TABS: "device,report"  # 암호가 필요한 탭 ID 목록 [device,stick,qc,report,place]
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+      ACCESS_PASSWORD: ${ACCESS_PASSWORD} # 접근 암호 환경 변수 추가
+      PROTECTED_TABS: ${PROTECTED_TABS} # 암호가 필요한 탭 ID 목록
     depends_on:
       - db
 
@@ -21,16 +21,15 @@ services:
     image: mariadb:latest
     container_name: mariadb
     ports:
-      - "3306:3306"
+      - "${DATABASE_EXTERNAL_PORT}:${DATABASE_PORT}"
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: mydatabase
-      MYSQL_USER: myuser
-      MYSQL_PASSWORD: mypassword
+      MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE_NAME}
+      MYSQL_USER: ${DATABASE_USER}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
     command: --bind-address=0.0.0.0  # 모든 IP로 접근 허용
-
 
 volumes:
   db_data:

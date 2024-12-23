@@ -21,7 +21,7 @@ app = Quart(__name__)
 DB_USER = os.getenv('DB_USER', 'myuser')
 DB_PASSWORD = os.getenv('DB_PASSWORD', 'mypassword')
 DB_HOST = os.getenv('DB_HOST', 'db')  # MariaDB 컨테이너 이름
-DB_PORT = os.getenv('DB_PORT', '3306')
+DB_PORT = os.getenv('DATABASE_EXTERNAL_PORT', '3306')
 DB_NAME = os.getenv('DB_NAME', 'mydatabase')
 DB_CHARSET = os.getenv('DB_CHARSET', 'utf8mb4')
 # 환경 변수에서 접근 암호 가져오기
@@ -1004,4 +1004,4 @@ async def verify_password():
         return jsonify({"verified": False, "message": "Invalid password"}), 401
         
 if __name__ == '__main__':
-    app.run('0.0.0.0', port=5012, debug=True)
+    app.run(host='0.0.0.0', port=int(os.getenv('APP_PORT', 5012)))

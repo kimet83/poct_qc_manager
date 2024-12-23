@@ -15,6 +15,6 @@ fi
 
 # Docker Compose 빌드 및 실행
 echo "=== Docker Compose 빌드 및 실행 ==="
-docker-compose -f "$COMPOSE_FILE" up --build -d || { echo "Docker Compose 실행 실패!"; exit 1; }
-
+# docker-compose -f "$COMPOSE_FILE" up --build -d || { echo "Docker Compose 실행 실패!"; exit 1; }
+docker-compose --env-file .env up --build -d
 echo "=== 모든 작업 완료 ==="
