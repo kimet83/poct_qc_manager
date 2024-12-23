@@ -76,6 +76,17 @@ async function requirePassword(tabId) {
   }
 }
 
+// 모든 탭에 이벤트 리스너 추가 (자동 적용)
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.nav-link').forEach((tab) => {
+    tab.addEventListener('click', (event) => {
+      const tabId = tab.id.replace('-tab', ''); // tab ID 추출
+      event.preventDefault(); // 기본 동작 방지
+      requirePassword(tabId); // 암호 확인 함수 호출
+    });
+  });
+});
+
 // 페이지 로드시 스크립트 실행
 document.addEventListener('DOMContentLoaded', () => {
   // loadPlaces();
