@@ -7,7 +7,6 @@ from sqlalchemy.sql import func, text
 from sqlalchemy.future import select
 import aiomysql
 import json
-# from host import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME, DB_CHARSET
 from barcode import analyze_barcode  # barcode.py에 정의된 함수
 import uuid
 import base64  # Base64 인코딩 및 디코딩 처리
@@ -28,15 +27,11 @@ DB_CHARSET = os.getenv('DB_CHARSET', 'utf8mb4')
 
 # SQLAlchemy 설정
 DATABASE_URL = f"mysql+aiomysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset={DB_CHARSET}"
-# REAGENT_DATABASE_URL = f"mysql+aiomysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/REAGENT?charset={DB_CHARSET}"
 BASE_DATABASE_URL = f"mysql+aiomysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/?charset={DB_CHARSET}"
 engine: AsyncEngine = create_async_engine(DATABASE_URL, echo=True)
-# reagent_engine: AsyncEngine = create_async_engine(REAGENT_DATABASE_URL, echo=True)
 base_engine: AsyncEngine = create_async_engine(BASE_DATABASE_URL, echo=True)
 SessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)
-# ReagentSessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=reagent_engine)
 Base = declarative_base()
-# ReagentBase = declarative_base()
 
 # 로깅 설정
 logging.basicConfig(
@@ -50,7 +45,6 @@ async def create_database_if_not_exists():
     """데이터베이스가 존재하지 않을 경우 생성"""
     async with base_engine.begin() as conn:
         await conn.execute(text(f"CREATE DATABASE IF NOT EXISTS {DB_NAME} CHARACTER SET {DB_CHARSET}"))
-        # await conn.execute(text(f"CREATE DATABASE IF NOT EXISTS REAGENT CHARACTER SET {DB_CHARSET}"))
         print(f"Databases '{DB_NAME}' and 'REAGENT' checked or created.")
 
 
@@ -147,27 +141,12 @@ class Result(Base):
     stick = relationship('Stick', back_populates='results')
     sign = relationship('Signs', back_populates='results')
 
-# 테이블: make_reagent
-# class Make_reagent(ReagentBase):
-#     __tablename__ = 'make_reagent'
-
-#     id = Column(Integer, primary_key=True, autoincrement=True)  # 기본 키 추가
-#     in_date = Column(Date, nullable=False)
-#     name = Column(String(50), nullable=True)
-#     date = Column(Date, nullable=True)
-#     lot = Column(String(50), nullable=True)
-#     exp_date = Column(Date, nullable=True)
-#     close_date = Column(Date, nullable=True)
-    
-
 @app.before_serving
 async def setup_database():
     """데이터베이스 및 테이블 설정"""
     await create_database_if_not_exists()
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    # async with reagent_engine.begin() as conn:
-    #     await conn.run_sync(ReagentBase.metadata.create_all)
     print("Databases initialized.")
 
 @app.route('/test-connection')
@@ -605,34 +584,6 @@ async def save_sign():
         logging.error(f"saveSign: Unexpected error: {traceback.format_exc()}")
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
-# @app.route('/GetQcReagent', methods=['GET'])
-# async def get_qc_reagent():
-#     """make_reagent 테이블에서 'POCT Control'이라는 name과 close_date가 NULL인 데이터를 검색"""
-#     async with ReagentSessionLocal() as session:
-#         async with session.begin():
-#             # SQLAlchemy로 SELECT 쿼리 작성
-#             query = (
-#                 select(Make_reagent.lot, Make_reagent.exp_date)
-#                 .where(
-#                     Make_reagent.name == 'POCT Control',
-#                     Make_reagent.close_date.is_(None)
-#                 )
-#                 .limit(1)  # LIMIT 1
-#             )
-
-#             # 쿼리 실행 및 결과 가져오기
-#             result = await session.execute(query)
-#             reagent = result.first()  # 첫 번째 결과 반환
-#             print(reagent)
-
-#             if not reagent:
-#                 return jsonify({"error": "No reagent found matching criteria"}), 404
-
-#             # JSON 형태로 데이터 반환
-#             return jsonify({
-#                 "lot": reagent[0],  # lot
-#                 "exp_date": reagent[1].isoformat() if reagent[1] else None  # exp_date
-#             }), 200
 @app.route('/GetQcReagent', methods=['GET'])
 async def get_qc_reagent():
     """
