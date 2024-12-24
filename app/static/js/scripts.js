@@ -1,7 +1,7 @@
 let passwordVerified = false;
 let protectedTabs = [];
 
-// 보호된 탭 목록 가져오기
+// 🛡️ 보호된 탭 목록 가져오기
 async function fetchProtectedTabs() {
   try {
     const response = await fetch('/protected-tabs');
@@ -13,7 +13,7 @@ async function fetchProtectedTabs() {
   }
 }
 
-// 암호 확인 함수
+// 🔑 암호 확인 함수
 async function requirePassword(tabId) {
   console.log("Clicked tab ID:", tabId);
 
@@ -32,8 +32,7 @@ async function requirePassword(tabId) {
   const password = prompt('접근 암호를 입력하세요:');
   if (!password) {
     alert('암호를 입력해주세요.');
-    // 암호 입력이 취소되면 QC 탭으로 강제 이동
-    document.getElementById('qc-tab').click();
+    document.getElementById('qc-tab').click(); // QC 탭으로 이동
     return;
   }
 
@@ -53,25 +52,21 @@ async function requirePassword(tabId) {
       document.getElementById(`${tabId}-tab`).click();
     } else {
       alert(result.message || '잘못된 암호입니다.');
-      // 암호가 틀렸을 경우 QC 탭으로 강제 전환
-      document.getElementById('qc-tab').click();
+      document.getElementById('qc-tab').click(); // QC 탭으로 이동
     }
   } catch (error) {
     console.error('Error verifying password:', error);
     alert('서버 오류가 발생했습니다.');
-    // 오류 발생 시 QC 탭으로 강제 전환
-    document.getElementById('qc-tab').click();
+    document.getElementById('qc-tab').click(); // QC 탭으로 이동
   }
 }
 
-// 초기 보호된 탭 목록 가져오기
-// document.addEventListener('DOMContentLoaded', fetchProtectedTabs);
-
+// 🖥️ 페이지 로드 시 실행
 document.addEventListener('DOMContentLoaded', () => {
   // 보호된 탭 목록 불러오기
   fetchProtectedTabs();
 
-  // 메뉴 탭 클릭 시 암호 검증
+  // 🟢 메뉴 탭 클릭 이벤트 리스너
   document.getElementById('menuTab').addEventListener('click', (event) => {
     const clickedTab = event.target.closest('.nav-link');
     if (!clickedTab) return;
@@ -79,9 +74,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabId = clickedTab.id.replace('-tab', '');
     event.preventDefault(); // 기본 동작 방지
     requirePassword(tabId);
+
+    // 활성화된 탭 ID 저장
+    localStorage.setItem('activeTab', tabId);
   });
 
-  // 페이지 초기화 관련 함수 호출
+  // 📦 페이지 초기화 관련 함수 호출
   loadPlaceList();
   loadDeviceList();
   loadSticks();
@@ -92,26 +90,19 @@ document.addEventListener('DOMContentLoaded', () => {
   loadQcResults();
   adjustTableForMobile();
 
-  // URL 해시를 기반으로 탭 활성화
-  const hash = window.location.hash.replace('#', '');
-  if (hash) {
-    const [mainTabId, subTabId] = hash.split(',');
-
-    if (mainTabId) {
-      requirePassword(mainTabId);
-    }
-    if (subTabId) {
-      const subTab = document.getElementById(subTabId);
-      if (subTab) subTab.click();
-    }
+  // 🟡 URL 해시 또는 LocalStorage를 기반으로 탭 활성화
+  const savedTabId = localStorage.getItem('activeTab');
+  if (savedTabId) {
+    requirePassword(savedTabId);
   } else {
-    document.getElementById('qc-tab').click();
+    document.getElementById('qc-tab').click(); // 기본 QC 탭 활성화
   }
 });
 
+// 📱 창 크기 조정 시 테이블 조정
+window.addEventListener('resize', adjustTableForMobile);
 
-window.addEventListener('resize', adjustTableForMobile); //리사이즈시 테이블 조정
-// 메인 및 서브 탭 클릭 시 URL 해시 업데이트
+// 🌐 URL 해시와 LocalStorage 업데이트
 document.querySelectorAll('.nav-tabs .nav-link, .nav-pills .nav-link').forEach(tab => {
   tab.addEventListener('click', (event) => {
     const mainTabId = document.querySelector('.nav-tabs .nav-link.active').id; // 활성 메인 탭 ID
@@ -120,8 +111,12 @@ document.querySelectorAll('.nav-tabs .nav-link, .nav-pills .nav-link').forEach(t
     // URL 해시 갱신
     const hash = subTabId ? `${mainTabId},${subTabId}` : mainTabId;
     window.location.hash = hash;
+
+    // LocalStorage에 탭 ID 저장
+    localStorage.setItem('activeTab', mainTabId);
   });
 });
+
 function adjustTableForMobile() {
   const isMobile = window.innerWidth <= 768;
 
