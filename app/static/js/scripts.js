@@ -92,10 +92,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 🟡 URL 해시 또는 LocalStorage를 기반으로 탭 활성화
   const savedTabId = localStorage.getItem('activeTab');
-  if (savedTabId) {
+  if (savedTabId && document.getElementById(`${savedTabId}-tab`)) {
     requirePassword(savedTabId);
   } else {
-    document.getElementById('qc-tab').click(); // 기본 QC 탭 활성화
+    // 기본 QC 탭 활성화
+    document.getElementById('qc-tab').click(); 
+    localStorage.setItem('activeTab', 'qc'); // QC 탭을 기본 활성 탭으로 저장
   }
 });
 
