@@ -4,11 +4,11 @@
 
 ## 🚀 **개요**
 
-안녕하세요! 👋 저는 **POCT QC Manager**입니다.  
+안녕하세요! 👋 **POCT QC Manager**입니다.  
 저는 **Python (Quart)** 를 백엔드로 사용하고, **MariaDB**로 데이터를 관리하며, **Docker Compose**로 컨테이너화된 환경을 제공합니다.  
 주요 기능으로는 **장비 관리**, **Stick 관리**, **QC 결과 보고**, **결과 확인 및 수정**이 있으며, 웹 기반으로 효율적인 관리 시스템을 제공합니다.  
 혈당 측정기 관리 및 QC(정도 관리)를 위한 웹 애플리케이션이죠.  
-Docker Compose를 사용해 저를 손쉽게 실행하고 관리할 수 있어요. 🐳
+Docker Compose를 사용해 손쉽게 실행하고 관리할 수 있어요. 🐳
 
 ---
 
@@ -16,17 +16,16 @@ Docker Compose를 사용해 저를 손쉽게 실행하고 관리할 수 있어�
 
 ```
 .
-├── app/                # 제 핵심 소스 코드가 여기에 있어요
-├── docker-compose.yml  # 저를 구성하는 도커 설정 파일
-├── run.sh             # 저를 실행하기 위한 스크립트
-└── README.md          # 이 문서, 바로 저예요!
+├── app/                # 핵심 소스 코드
+├── docker-compose.yml  # 도커 설정 파일
+├── .env                # 설정 파일
+├── run.sh             # 실행하기 위한 스크립트
+└── README.md          # 이 문서
 ```
 
 ---
 
 ## 🔧 **시스템 요구사항**
-
-제대로 작동하려면 다음 도구들이 필요해요:
 
 - **Docker** 🐋 → [설치하기](https://docs.docker.com/get-docker/)
 - **Docker Compose** 📦 → [설치하기](https://docs.docker.com/compose/install/)
@@ -34,14 +33,14 @@ Docker Compose를 사용해 저를 손쉽게 실행하고 관리할 수 있어�
 
 ---
 
-## 📥 **나를 다운로드하는 방법**
+## 📥 **다운로드**
 
 ```bash
-# 내 소스를 가져와 주세요
+# 소스 가져오기
 git clone git@github.com:kimet83/poct_qc_manager.git
 cd poct_qc_manager
 
-# 실행 권한을 주세요
+# 실행 권한 설정
 chmod +x run.sh
 ```
 
