@@ -107,6 +107,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 🟡 URL 해시 또는 LocalStorage를 기반으로 탭 활성화
   const savedTabId = localStorage.getItem('activeTab');
+  console.log(savedTabId)
   if (savedTabId && getTabElement(savedTabId)) {
     requirePassword(savedTabId);
   } else {
