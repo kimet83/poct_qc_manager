@@ -1,22 +1,3 @@
-// let passwordVerified = false;
-
-// // 암호 확인 함수
-// function requirePassword(tabId) {
-//   if (passwordVerified) {
-//     // 이미 암호를 입력했다면 바로 탭 활성화
-//     document.getElementById(tabId).click();
-//     return;
-//   }
-
-//   const password = prompt('접근 암호를 입력하세요:');
-//   if (password === '1022') { // 원하는 암호로 변경
-//     passwordVerified = true; // 암호가 올바르면 상태 변경
-//     document.getElementById(tabId).click();
-//   } else {
-//     alert('잘못된 암호입니다.');
-//     document.getElementById('qc-tab').click();
-//   }
-// }
 let passwordVerified = false;
 let protectedTabs = [];
 
@@ -196,37 +177,6 @@ function getTodayDate() {
   return `${year}-${month}-${day}`;
 }
 
-// function loadPlaces() {
-//   // 장비등록, 정도관리 결과등록 장소목록 로드
-//   fetch('/GetPlaces')
-//     .then(response => response.json())
-//     .then(data => {
-//       // registerPlaceCode 업데이트
-//       const registerPlaceSelect = document.getElementById('registerPlaceCode');
-//       if (registerPlaceSelect) {
-//         registerPlaceSelect.innerHTML = '<option value="" disabled selected>장소를 선택하세요</option>';
-//         data.forEach(place => {
-//           const option = document.createElement('option');
-//           option.value = place.PlaceCode; // 입력 값
-//           option.textContent = place.PlaceName; // 표시 값
-//           registerPlaceSelect.appendChild(option);
-//         });
-//       }
-
-//       // placeSelect 업데이트
-//       const placeSelect = document.getElementById('placeSelect');
-//       if (placeSelect) {
-//         placeSelect.innerHTML = '<option value="" disabled selected>장소를 선택하세요</option>';
-//         data.forEach(place => {
-//           const option = document.createElement('option');
-//           option.value = place.PlaceCode; // 입력 값
-//           option.textContent = place.PlaceName; // 표시 값
-//           placeSelect.appendChild(option);
-//         });
-//       }
-//     })
-//     .catch(error => console.error('Error fetching places:', error));
-// }
 
 function loadReplaceSerials(placeCode) {
   const replaceSerialSelect = document.getElementById('registerReplaceSerial'); // 장비관리의 교체장비 선택
@@ -432,6 +382,7 @@ function registerDevice() {
       if (response.ok) {
         alert('장비가 성공적으로 등록되었습니다!');
         document.getElementById('registerDeviceForm').reset(); // 폼 초기화
+        loadDeviceList();
       } else {
         alert('장비 등록에 실패했습니다.');
       }
@@ -576,6 +527,7 @@ async function registerStick() {
     if (response.ok) {
       alert(result.message);
       document.getElementById('stickRegisterForm').reset();
+      loadSticks();
     } else {
       alert(result.error || '등록에 실패했습니다.');
     }
