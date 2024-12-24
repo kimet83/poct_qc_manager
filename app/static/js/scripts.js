@@ -85,6 +85,7 @@ function getTabElement(tabId) {
 
 // 🖥️ 페이지 로드 시 실행
 document.addEventListener('DOMContentLoaded', async () => {
+  passwordVerified = false;
   await fetchProtectedTabs(); // 보호된 탭 목록 불러오기
 
   // 🟢 메뉴 탭 클릭 이벤트 리스너
