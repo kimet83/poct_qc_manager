@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     requirePassword(tabId);
 
     // 활성화된 탭 ID 저장
-    localStorage.setItem('activeTab', tabId);
+    // localStorage.setItem('activeTab', tabId);
   });
 
   // 📦 페이지 초기화 관련 함수 호출
