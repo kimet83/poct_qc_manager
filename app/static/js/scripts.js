@@ -33,6 +33,7 @@ async function requirePassword(tabId) {
   if (!password) {
     alert('암호를 입력해주세요.');
     document.getElementById('qc-tab').click(); // QC 탭으로 이동
+    localStorage.setItem('activeTab', 'qc');
     return;
   }
 
