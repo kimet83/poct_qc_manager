@@ -74,12 +74,30 @@ function switchToQcTab() {
 
 // 🟢 탭 활성화 함수
 function activateTab(tabElement, tabId) {
-  if (tabElement) {
-    tabElement.click();
-    localStorage.setItem('activeTab', tabId); // 올바른 탭 ID 저장
-    window.location.hash = tabId; // URL 해시 갱신
+  if (!tabElement) {
+    console.warn('탭 요소를 찾을 수 없습니다:', tabId);
+    return;
   }
+
+  // 보호된 탭인지 확인
+  if (protectedTabs.includes(tabId)) {
+    // 보호된 탭은 인증 여부 확인
+    if (!passwordVerified) {
+      console.warn('보호된 탭에 접근하려면 암호 인증이 필요합니다:', tabId);
+      alert('이 탭에 접근하려면 암호 인증이 필요합니다.');
+      switchToQcTab();
+      return;
+    }
+  }
+
+  // 탭 활성화
+  tabElement.click();
+  localStorage.setItem('activeTab', tabId); // 활성화된 탭 ID 저장
+  window.location.hash = tabId; // URL 해시 업데이트
+
+  console.log('탭 활성화됨:', tabId);
 }
+
 
 
 // 🔄 탭 요소 가져오기
