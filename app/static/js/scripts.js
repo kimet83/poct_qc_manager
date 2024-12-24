@@ -32,8 +32,8 @@ async function requirePassword(tabId) {
   const password = prompt('접근 암호를 입력하세요:');
   if (!password) {
     alert('암호를 입력해주세요.');
-    document.getElementById('qc-tab').click(); // QC 탭으로 이동
-    localStorage.setItem('activeTab', 'qc');
+    document.getElementById('qc-tab').click();
+    localStorage.setItem('activeTab', 'qc'); // QC 탭으로 저장
     return;
   }
 
@@ -51,16 +51,20 @@ async function requirePassword(tabId) {
     if (response.ok && result.verified) {
       passwordVerified = true;
       document.getElementById(`${tabId}-tab`).click();
+      localStorage.setItem('activeTab', tabId); // 인증 성공 시 활성 탭 저장
     } else {
       alert(result.message || '잘못된 암호입니다.');
-      document.getElementById('qc-tab').click(); // QC 탭으로 이동
+      document.getElementById('qc-tab').click();
+      localStorage.setItem('activeTab', 'qc'); // QC 탭으로 저장
     }
   } catch (error) {
     console.error('Error verifying password:', error);
     alert('서버 오류가 발생했습니다.');
-    document.getElementById('qc-tab').click(); // QC 탭으로 이동
+    document.getElementById('qc-tab').click();
+    localStorage.setItem('activeTab', 'qc'); // QC 탭으로 저장
   }
 }
+
 
 // 🖥️ 페이지 로드 시 실행
 document.addEventListener('DOMContentLoaded', () => {
