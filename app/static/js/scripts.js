@@ -21,20 +21,20 @@ async function requirePassword(tabId) {
 
   // 보호된 탭이 아니면 바로 활성화
   if (!protectedTabs.includes(tabId)) {
-    activateTab(tabElement);
+    activateTab(tabElement, tabId); // 탭 활성화 및 LocalStorage 저장
     return;
   }
 
   // 이미 인증된 경우 바로 탭 활성화
   if (passwordVerified) {
-    activateTab(tabElement);
+    activateTab(tabElement, tabId); // 탭 활성화 및 LocalStorage 저장
     return;
   }
 
   const password = prompt('접근 암호를 입력하세요:');
   if (!password) {
     alert('암호를 입력해주세요.');
-    switchToQcTab();
+    switchToQcTab(); // QC 탭으로 이동 및 저장
     return;
   }
 
@@ -49,32 +49,34 @@ async function requirePassword(tabId) {
 
     if (response.ok && result.verified) {
       passwordVerified = true;
-      activateTab(tabElement);
+      activateTab(tabElement, tabId); // 인증 성공 후 탭 활성화 및 LocalStorage 저장
     } else {
       alert(result.message || '잘못된 암호입니다.');
-      switchToQcTab();
+      switchToQcTab(); // QC 탭으로 이동 및 저장
     }
   } catch (error) {
     console.error('Error verifying password:', error);
     alert('서버 오류가 발생했습니다.');
-    switchToQcTab();
+    switchToQcTab(); // QC 탭으로 이동 및 저장
   }
 }
+
 
 // 🛡️ QC 탭으로 이동 및 저장 함수
 function switchToQcTab() {
-  activateTab(getTabElement('qc'));
-  localStorage.setItem('activeTab', 'qc');
-  console.log(localStorage)
+  activateTab(getTabElement('qc'), 'qc'); // QC 탭을 활성화 및 저장
 }
 
+
 // 🟢 탭 활성화 함수
-function activateTab(tabElement) {
+function activateTab(tabElement, tabId) {
   if (tabElement) {
     tabElement.click();
-    localStorage.setItem('activeTab', tabElement.id.replace('-tab', ''));
+    localStorage.setItem('activeTab', tabId); // 올바른 탭 ID 저장
+    window.location.hash = tabId; // URL 해시 갱신
   }
 }
+
 
 // 🔄 탭 요소 가져오기
 function getTabElement(tabId) {
@@ -122,15 +124,18 @@ window.addEventListener('resize', adjustTableForMobile);
 // 🌐 URL 해시와 LocalStorage 업데이트
 document.querySelectorAll('.nav-tabs .nav-link, .nav-pills .nav-link').forEach(tab => {
   tab.addEventListener('click', (event) => {
-    const mainTabId = document.querySelector('.nav-tabs .nav-link.active').id.replace('-tab', '');
-    const subTabId = document.querySelector('.tab-pane.active .nav-pills .nav-link.active')?.id.replace('-tab', '') || null;
+    const clickedTab = event.target.closest('.nav-link');
+    if (!clickedTab) return;
 
-    // URL 해시 갱신
-    const hash = subTabId ? `${mainTabId},${subTabId}` : mainTabId;
-    window.location.hash = hash;
+    const tabId = clickedTab.id.replace('-tab', '');
 
-    // LocalStorage에 탭 ID 저장
-    localStorage.setItem('activeTab', mainTabId);
+    // 보호된 탭인지 확인 후 처리
+    if (protectedTabs.includes(tabId)) {
+      event.preventDefault();
+      requirePassword(tabId);
+    } else {
+      activateTab(clickedTab, tabId);
+    }
   });
 });
 
