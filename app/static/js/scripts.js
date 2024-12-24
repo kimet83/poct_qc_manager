@@ -65,6 +65,7 @@ async function requirePassword(tabId) {
 function switchToQcTab() {
   activateTab(getTabElement('qc'));
   localStorage.setItem('activeTab', 'qc');
+  console.log(localStorage)
 }
 
 // 🟢 탭 활성화 함수
