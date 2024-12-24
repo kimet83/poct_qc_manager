@@ -18,7 +18,7 @@ async function requirePassword(tabId) {
   console.log("Clicked tab ID:", tabId);
 
   const tabElement = getTabElement(tabId);
-
+  console.log("tabElement",tabElement);
   // 보호된 탭이 아니면 바로 활성화
   if (!protectedTabs.includes(tabId)) {
     activateTab(tabElement, tabId); // 탭 활성화 및 LocalStorage 저장
