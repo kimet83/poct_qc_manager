@@ -48,23 +48,24 @@ chmod +x run.sh
 
 ## 🔧 **내 설정 변경하기**
 
-`docker-compose.yml` 파일을 열어 환경 변수를 확인하고 필요에 따라 수정하세요.
+`.env` 파일을 작성하여 환경 변수를 확인하고 필요에 따라 수정하세요.
 
-```yaml
-services:
-  app:
-    environment:
-      DATABASE_HOST: db
-      DATABASE_PORT: 3306
-      DATABASE_USER: myuser
-      DATABASE_PASSWORD: mypassword
-      DATABASE_NAME: mydatabase
-      ACCESS_PASSWORD: "1022"  # 탭 접근 암호
-      PROTECTED_TABS: "device-tab,report-tab"  # 암호가 필요한 탭 목록
+```env
+APP_PORT=5012
+ACCESS_PASSWORD=1022
+PROTECTED_TABS=device,report
+
+DATABASE_HOST=db
+DATABASE_PORT=3306
+DATABASE_EXTERNAL_PORT=3306
+DATABASE_USER=myuser
+DATABASE_PASSWORD=mypassword
+DATABASE_NAME=mydatabase
+DATABASE_ROOT_PASSWORD=rootpassword
 ```
 
 - **ACCESS_PASSWORD:** 암호 입력 시 필요한 비밀번호  
-- **PROTECTED_TABS:** 암호가 필요한 탭 (쉼표로 구분)
+- **PROTECTED_TABS:** 암호가 필요한 탭 (쉼표로 구분) device, stick, report, qc, place
 
 ---
 
@@ -96,15 +97,16 @@ docker-compose up --build -d
 |------------------|-----------|--------------------------|
 | `DATABASE_HOST`  | `db`      | 데이터베이스 호스트 이름   |
 | `DATABASE_PORT`  | `3306`    | 데이터베이스 포트         |
+| `DATABASE_EXTERNAL_PORT`  | `3306`    | 데이터베이스  외부포트         |
 | `DATABASE_USER`  | `myuser`  | 데이터베이스 사용자 이름   |
 | `DATABASE_PASSWORD` | `mypassword` | 데이터베이스 비밀번호 |
 | `DATABASE_NAME`  | `mydatabase` | 데이터베이스 이름        |
 | `ACCESS_PASSWORD` | `1022`   | 접근 암호                |
-| `PROTECTED_TABS` | `device-tab,report-tab` | 암호가 필요한 탭 목록 |
+| `PROTECTED_TABS` | `device,report` | 암호가 필요한 탭 목록 |
 
 ---
 
-## 🧩 **나의 서비스 구성**
+## 🧩 **서비스 구성**
 
 ### **1️⃣ app (Quart 애플리케이션)**
 - **포트:** `5012:5012`
@@ -118,13 +120,13 @@ docker-compose up --build -d
 
 ## 🔒 **암호 보호 탭 (PROTECTED_TABS)**
 
-- `device-tab`: 장비 관리 탭  
-- `report-tab`: 결과 보고 탭  
+- `device`: 장비 관리 탭  
+- `report`: 결과 보고 탭  
 - 필요에 따라 다른 탭을 추가하거나 제거할 수 있어요.  
 
 ---
 
-## 🐳 **나를 관리하는 Docker 명령어**
+## 🐳 **Docker 명령어**
 
 - **모든 컨테이너 시작:**  
   ```bash
@@ -145,14 +147,14 @@ docker-compose up --build -d
 
 ---
 
-## 🔑 **나를 안전하게 사용하려면?**
+## 🔑 **안전하게 사용하려면?**
 
 1. **ACCESS_PASSWORD**는 안전한 비밀번호로 설정해 주세요.  
 2. 중요한 환경 변수는 `.env` 파일에 저장하고 `.gitignore`에 추가하세요.
 
 ---
 
-## 🔧 **문제가 생기면 이렇게 해봐요**
+## 🔧 **문제해결**
 
 ### 🔧 **1. Docker Compose 실행 실패**
 - 오류 확인:  
@@ -187,7 +189,7 @@ docker-compose up --build -d
 
 ## 🎯 **마무리**
 
-**이제 저는 완전히 준비되었습니다!** 🚀  
+**이제 완전히 준비되었습니다!** 🚀  
 `./run.sh` 명령어로 저를 실행하고 브라우저에서 `http://localhost:5012`로 접속하세요.  
 더 나은 개선 사항이 있다면 GitHub에서 알려주세요. 😊  
 
