@@ -109,25 +109,24 @@ async function handleTabClick(event) {
 
   // 보호된 탭인지 확인
   if (protectedTabs.includes(tabId)) {
-    event.preventDefault(); // 기본 동작 방지
-    console.log("탭 저장 시 인증 시행");
+    event.preventDefault(); // 기본 탭 전환 방지
+    console.log('보호된 탭 접근 시 인증 시행');
 
-    // 암호 확인 프로세스
     const isPasswordValid = await requirePassword(tabId);
-
-    // 암호가 유효하지 않은 경우 QC 탭으로 이동
     if (!isPasswordValid) {
-      switchToQcTab();
+      switchToQcTab(); // 인증 실패 시 QC 탭으로 이동
+      return;
     }
-  } else {
-    // 보호되지 않은 탭은 바로 활성화
-    activateTab(clickedTab, tabId);
   }
+
+  // 탭 활성화
+  activateTab(clickedTab, tabId);
 }
+
 
 // 🖥️ 페이지 로드 시 실행
 document.addEventListener('DOMContentLoaded', async () => {
-  // 암호 인증 상태 초기화
+  // 초기화
   passwordVerified = false;
 
   // 보호된 탭 목록 불러오기
@@ -135,36 +134,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 저장된 탭 ID 확인
   const savedTabId = localStorage.getItem('activeTab');
+  const savedTabElement = getTabElement(savedTabId);
 
   if (savedTabId && protectedTabs.includes(savedTabId)) {
     console.warn('새로고침 후 보호된 탭에 접근할 수 없습니다. QC 탭으로 이동합니다.');
     switchToQcTab();
-  } else if (savedTabId && getTabElement(savedTabId)) {
-    console.log("로딩 시 인증 시행");
-    requirePassword(savedTabId);
+  } else if (savedTabId && savedTabElement) {
+    console.log('저장된 탭 활성화:', savedTabId);
+    activateTab(savedTabElement, savedTabId); // 비밀번호 요구 없이 탭 활성화
   } else {
-    switchToQcTab();
+    switchToQcTab(); // 기본 QC 탭으로 이동
   }
 
-  // 🟢 메뉴 탭 클릭 이벤트 리스너
-  document.getElementById('menuTab').addEventListener('click', (event) => {
-    const clickedTab = event.target.closest('.nav-link');
-    if (!clickedTab) return;
-
-    const tabId = clickedTab.id.replace('-tab', '');
-    event.preventDefault(); // 기본 동작 방지
-    console.log("클릭 시 인증 시행");
-    
-    requirePassword(tabId);
-  });
-
-  // 🌐 URL 해시와 LocalStorage 업데이트
+  // 탭 클릭 이벤트 리스너
   document.querySelectorAll('.nav-tabs .nav-link, .nav-pills .nav-link').forEach(tab => {
-    tab.removeEventListener('click', handleTabClick); // 기존 리스너 제거
+    tab.removeEventListener('click', handleTabClick);
     tab.addEventListener('click', handleTabClick);
   });
 
-  // 📦 페이지 초기화 관련 함수 호출
+  // 초기화 함수 호출
   loadPlaceList();
   loadDeviceList();
   loadSticks();
@@ -175,6 +163,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadQcResults();
   adjustTableForMobile();
 });
+
 
 // 📱 창 크기 조정 시 테이블 조정
 window.addEventListener('resize', adjustTableForMobile);
