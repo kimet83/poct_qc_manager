@@ -62,8 +62,37 @@ async function requirePassword(tabId) {
 function switchToQcTab() {
   passwordVerified = false; // 인증 상태 초기화
   console.warn('보호된 탭 접근 실패. QC 탭으로 전환합니다.');
-  activateTab(getTabElement('qc'), 'qc'); // QC 탭 활성화
+
+  const qcTabElement = getTabElement('qc');
+
+  if (!qcTabElement) {
+    console.error('QC 탭 요소를 찾을 수 없습니다.');
+    return;
+  }
+
+  // Edge 브라우저 호환성을 고려한 탭 전환 로직
+  try {
+    // 1. URL 해시 직접 변경
+    window.location.hash = 'qc';
+
+    // 2. 탭 강제 클릭 (Edge 호환)
+    setTimeout(() => {
+      qcTabElement.classList.add('active');
+      qcTabElement.click(); // 강제 클릭 시도
+    }, 100);
+
+    // 3. Active 클래스 수동 추가 (Fallback)
+    document.querySelectorAll('.nav-link').forEach(tab => {
+      tab.classList.remove('active');
+    });
+    qcTabElement.classList.add('active');
+    localStorage.setItem('activeTab', 'qc');
+  } catch (error) {
+    console.error('QC 탭 전환 중 오류 발생:', error);
+    alert('QC 탭으로 이동하는 중 문제가 발생했습니다.');
+  }
 }
+
 
 // 🟢 탭 활성화
 function activateTab(tabElement, tabId) {
