@@ -122,6 +122,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     switchToQcTab();
   } else if (savedTabId && getTabElement(savedTabId)) {
     // 보호되지 않은 탭은 정상적으로 활성화
+    console.log("로딩시 인증시행")
     requirePassword(savedTabId);
   } else {
     // 저장된 탭이 없거나 잘못된 경우 QC 탭으로 이동
@@ -135,6 +136,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const tabId = clickedTab.id.replace('-tab', '');
     event.preventDefault(); // 기본 동작 방지
+    console.log("클릭시 인증시행")
     requirePassword(tabId);
   });
 
@@ -165,7 +167,7 @@ document.querySelectorAll('.nav-tabs .nav-link, .nav-pills .nav-link').forEach(t
     // 보호된 탭인지 확인
     if (protectedTabs.includes(tabId)) {
       event.preventDefault(); // 기본 동작 방지
-
+      console.log("탭 저장시 인증시행")
       // 암호 확인 프로세스
       const isPasswordValid = await requirePassword(tabId);
 
