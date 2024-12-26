@@ -80,10 +80,9 @@ function activateTab(tabElement, tabId) {
 
   // 보호된 탭인지 확인
   if (protectedTabs.includes(tabId)) {
-    // 보호된 탭은 인증 여부 확인
     if (!passwordVerified) {
-      console.warn('보호된 탭에 접근하려면 암호 인증이 필요합니다:', tabId);
-      alert('이 탭에 접근하려면 암호 인증이 필요합니다.');
+      console.warn('보호된 탭 접근 권한이 없습니다:', tabId);
+      alert('보호된 탭에 접근하려면 암호 인증이 필요합니다.');
       switchToQcTab();
       return;
     }
@@ -96,6 +95,7 @@ function activateTab(tabElement, tabId) {
 
   console.log('탭 활성화됨:', tabId);
 }
+
 
 // 🔄 탭 요소 가져오기
 function getTabElement(tabId) {
@@ -136,13 +136,10 @@ async function handleTabClick(event) {
 
 // 🖥️ 페이지 로드 시 실행
 document.addEventListener('DOMContentLoaded', async () => {
-  // 초기화
   passwordVerified = false;
 
-  // 보호된 탭 목록 불러오기
-  await fetchProtectedTabs();
+  await fetchProtectedTabs(); // 보호된 탭 목록 불러오기
 
-  // 저장된 탭 ID 확인
   const savedTabId = localStorage.getItem('activeTab');
   const savedTabElement = getTabElement(savedTabId);
 
@@ -153,7 +150,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('저장된 탭 활성화:', savedTabId);
     activateTab(savedTabElement, savedTabId); // 비밀번호 요구 없이 탭 활성화
   } else {
-    switchToQcTab(); // 기본 QC 탭으로 이동
+    switchToQcTab();
   }
 
   // 탭 클릭 이벤트 리스너
@@ -162,7 +159,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     tab.addEventListener('click', handleTabClick);
   });
 
-  // 초기화 함수 호출
   loadPlaceList();
   loadDeviceList();
   loadSticks();
@@ -173,6 +169,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadQcResults();
   adjustTableForMobile();
 });
+
 
 
 // 📱 창 크기 조정 시 테이블 조정
