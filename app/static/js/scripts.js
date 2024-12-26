@@ -26,41 +26,43 @@ async function requirePassword(tabId) {
     return true;
   }
 
-  // 이미 인증된 경우 바로 탭 활성화
+  // 이미 인증된 경우 바로 활성화
   if (passwordVerified) {
     activateTab(tabElement, tabId); // 탭 활성화 및 LocalStorage 저장
     return true;
   }
 
+  // 암호 입력
   const password = prompt('접근 암호를 입력하세요:');
   if (!password) {
     alert('암호를 입력해주세요.');
-    return false; // 인증 실패
+    return false;
   }
 
   try {
     const response = await fetch('/verify-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password })
+      body: JSON.stringify({ password }),
     });
 
     const result = await response.json();
 
     if (response.ok && result.verified) {
       passwordVerified = true;
-      activateTab(tabElement, tabId); // 인증 성공 후 탭 활성화 및 LocalStorage 저장
-      return true; // 인증 성공
+      activateTab(tabElement, tabId); // 인증 성공 후 탭 활성화
+      return true;
     } else {
       alert(result.message || '잘못된 암호입니다.');
-      return false; // 인증 실패
+      return false;
     }
   } catch (error) {
     console.error('Error verifying password:', error);
     alert('서버 오류가 발생했습니다.');
-    return false; // 인증 실패
+    return false;
   }
 }
+
 
 // 🛡️ QC 탭으로 이동 및 저장 함수
 function switchToQcTab() {
@@ -112,9 +114,16 @@ async function handleTabClick(event) {
     event.preventDefault(); // 기본 탭 전환 방지
     console.log('보호된 탭 접근 시 인증 시행');
 
-    const isPasswordValid = await requirePassword(tabId);
-    if (!isPasswordValid) {
-      switchToQcTab(); // 인증 실패 시 QC 탭으로 이동
+    try {
+      const isPasswordValid = await requirePassword(tabId);
+      if (!isPasswordValid) {
+        switchToQcTab(); // 인증 실패 시 QC 탭으로 이동
+        return;
+      }
+    } catch (error) {
+      console.error('Error handling protected tab:', error);
+      alert('오류가 발생했습니다. 다시 시도해주세요.');
+      switchToQcTab(); // 오류 발생 시 QC 탭으로 이동
       return;
     }
   }
@@ -122,6 +131,7 @@ async function handleTabClick(event) {
   // 탭 활성화
   activateTab(clickedTab, tabId);
 }
+
 
 
 // 🖥️ 페이지 로드 시 실행
