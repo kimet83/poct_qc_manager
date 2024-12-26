@@ -15,20 +15,18 @@ async function fetchProtectedTabs() {
 
 // 🔑 암호 확인 함수
 async function requirePassword(tabId) {
-  console.log("Clicked tab ID:", tabId);
+  console.log("Showing tab ID:", tabId);
 
   const tabElement = getTabElement(tabId);
 
   // 보호된 탭이 아니면 바로 활성화
   if (!protectedTabs.includes(tabId)) {
-    activateTab(tabElement, tabId); // 탭 활성화 및 LocalStorage 저장
-    return true;
+    return true; // 보호되지 않은 탭은 인증 불필요
   }
 
-  // 이미 인증된 경우 바로 탭 활성화
+  // 이미 인증된 경우 바로 활성화
   if (passwordVerified) {
-    activateTab(tabElement, tabId); // 탭 활성화 및 LocalStorage 저장
-    return true;
+    return true; // 이미 인증됨
   }
 
   const password = prompt('접근 암호를 입력하세요:');
@@ -48,7 +46,6 @@ async function requirePassword(tabId) {
 
     if (response.ok && result.verified) {
       passwordVerified = true;
-      activateTab(tabElement, tabId); // 인증 성공 후 탭 활성화 및 LocalStorage 저장
       return true; // 인증 성공
     } else {
       alert(result.message || '잘못된 암호입니다.');
@@ -61,36 +58,22 @@ async function requirePassword(tabId) {
   }
 }
 
-// 🛡️ QC 탭으로 이동 및 저장 함수
+// 🛡️ QC 탭으로 이동
 function switchToQcTab() {
   passwordVerified = false; // 인증 상태 초기화
   console.warn('보호된 탭 접근 실패. QC 탭으로 전환합니다.');
   activateTab(getTabElement('qc'), 'qc'); // QC 탭 활성화
 }
 
-// 🟢 탭 활성화 함수
+// 🟢 탭 활성화
 function activateTab(tabElement, tabId) {
   if (!tabElement) {
     console.warn('탭 요소를 찾을 수 없습니다:', tabId);
     return;
   }
-
-  // 보호된 탭인지 확인
-  if (protectedTabs.includes(tabId)) {
-    // 보호된 탭은 인증 여부 확인
-    if (!passwordVerified) {
-      console.warn('보호된 탭에 접근하려면 암호 인증이 필요합니다:', tabId);
-      alert('이 탭에 접근하려면 암호 인증이 필요합니다.');
-      switchToQcTab();
-      return;
-    }
-  }
-
-  // 탭 활성화
   tabElement.click();
   localStorage.setItem('activeTab', tabId); // 활성화된 탭 ID 저장
   window.location.hash = tabId; // URL 해시 업데이트
-
   console.log('탭 활성화됨:', tabId);
 }
 
@@ -99,42 +82,28 @@ function getTabElement(tabId) {
   return document.getElementById(`${tabId}-tab`);
 }
 
-// 📦 탭 클릭 핸들러
-async function handleTabClick(event) {
-  const clickedTab = event.target.closest('.nav-link');
-  if (!clickedTab) return;
+// 🌟 탭이 보여질 때 암호 확인
+async function handleTabShown(event) {
+  const activatedTab = event.target; // 활성화된 탭 요소
+  const tabId = activatedTab.id.replace('-tab', '');
 
-  const tabId = clickedTab.id.replace('-tab', '');
+  console.log('보여지는 탭 ID:', tabId);
 
-  // 보호된 탭인지 확인
   if (protectedTabs.includes(tabId)) {
-    event.preventDefault(); // 기본 동작 방지
-    console.log("탭 저장 시 인증 시행");
-
-    // 암호 확인 프로세스
     const isPasswordValid = await requirePassword(tabId);
-
-    // 암호가 유효하지 않은 경우 QC 탭으로 이동
     if (!isPasswordValid) {
       switchToQcTab();
     }
-  } else {
-    // 보호되지 않은 탭은 바로 활성화
-    activateTab(clickedTab, tabId);
   }
 }
 
 // 🖥️ 페이지 로드 시 실행
 document.addEventListener('DOMContentLoaded', async () => {
-  // 암호 인증 상태 초기화
-  passwordVerified = false;
+  passwordVerified = false; // 초기화
+  await fetchProtectedTabs(); // 보호된 탭 목록 불러오기
 
-  // 보호된 탭 목록 불러오기
-  await fetchProtectedTabs();
-
-  // 저장된 탭 ID 확인
+  // URL 해시 및 LocalStorage 확인
   const savedTabId = localStorage.getItem('activeTab');
-
   if (savedTabId && protectedTabs.includes(savedTabId)) {
     console.warn('새로고침 후 보호된 탭에 접근할 수 없습니다. QC 탭으로 이동합니다.');
     switchToQcTab();
@@ -145,25 +114,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     switchToQcTab();
   }
 
-  // 🟢 메뉴 탭 클릭 이벤트 리스너
-  document.getElementById('menuTab').addEventListener('click', (event) => {
-    const clickedTab = event.target.closest('.nav-link');
-    if (!clickedTab) return;
-
-    const tabId = clickedTab.id.replace('-tab', '');
-    event.preventDefault(); // 기본 동작 방지
-    console.log("클릭 시 인증 시행");
-    
-    requirePassword(tabId);
-  });
-
-  // 🌐 URL 해시와 LocalStorage 업데이트
+  // 🟢 탭 활성화 이벤트 리스너
   document.querySelectorAll('.nav-tabs .nav-link, .nav-pills .nav-link').forEach(tab => {
-    tab.removeEventListener('click', handleTabClick); // 기존 리스너 제거
-    tab.addEventListener('click', handleTabClick);
+    tab.removeEventListener('shown.bs.tab', handleTabShown);
+    tab.addEventListener('shown.bs.tab', handleTabShown);
   });
 
-  // 📦 페이지 초기화 관련 함수 호출
+  // 📦 페이지 초기화
   loadPlaceList();
   loadDeviceList();
   loadSticks();
@@ -175,35 +132,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   adjustTableForMobile();
 });
 
-// 📱 창 크기 조정 시 테이블 조정
+// 📱 창 크기 조정
 window.addEventListener('resize', adjustTableForMobile);
 
-
-// // 🌐 URL 해시와 LocalStorage 업데이트
-// document.querySelectorAll('.nav-tabs .nav-link, .nav-pills .nav-link').forEach(tab => {
-//   tab.addEventListener('click', async (event) => {
-//     const clickedTab = event.target.closest('.nav-link');
-//     if (!clickedTab) return;
-
-//     const tabId = clickedTab.id.replace('-tab', '');
-
-//     // 보호된 탭인지 확인
-//     if (protectedTabs.includes(tabId)) {
-//       event.preventDefault(); // 기본 동작 방지
-//       console.log("탭 저장시 인증시행")
-//       // 암호 확인 프로세스
-//       const isPasswordValid = await requirePassword(tabId);
-
-//       // 암호가 유효하지 않은 경우 QC 탭으로 이동
-//       if (!isPasswordValid) {
-//         switchToQcTab();
-//       }
-//     } else {
-//       // 보호되지 않은 탭은 바로 활성화
-//       activateTab(clickedTab, tabId);
-//     }
-//   });
-// });
 
 
 function adjustTableForMobile() {
