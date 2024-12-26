@@ -83,18 +83,29 @@ function getTabElement(tabId) {
 }
 
 // 🌟 탭이 보여질 때 암호 확인
+let isPasswordVerificationInProgress = false;
+
 async function handleTabShown(event) {
   const activatedTab = event.target; // 활성화된 탭 요소
   const tabId = activatedTab.id.replace('-tab', '');
 
   console.log('보여지는 탭 ID:', tabId);
 
-  if (protectedTabs.includes(tabId)) {
-    const isPasswordValid = await requirePassword(tabId);
-    if (!isPasswordValid) {
-      switchToQcTab();
-    }
+  if (!protectedTabs.includes(tabId)) {
+    return; // 보호되지 않은 탭이면 바로 반환
   }
+
+  // 이미 암호 확인 중이면 중복 실행 방지
+  if (isPasswordVerificationInProgress) return;
+  isPasswordVerificationInProgress = true;
+
+  const isPasswordValid = await requirePassword(tabId);
+
+  if (!isPasswordValid) {
+    switchToQcTab();
+  }
+
+  isPasswordVerificationInProgress = false;
 }
 
 // 🖥️ 페이지 로드 시 실행
@@ -114,7 +125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     switchToQcTab();
   }
 
-  // 🟢 탭 활성화 이벤트 리스너
+  // 🟢 탭 활성화 이벤트 리스너 (shown.bs.tab만 사용)
   document.querySelectorAll('.nav-tabs .nav-link, .nav-pills .nav-link').forEach(tab => {
     tab.removeEventListener('shown.bs.tab', handleTabShown);
     tab.addEventListener('shown.bs.tab', handleTabShown);
@@ -134,6 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // 📱 창 크기 조정
 window.addEventListener('resize', adjustTableForMobile);
+
 
 
 
