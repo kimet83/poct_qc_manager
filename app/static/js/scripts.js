@@ -62,37 +62,8 @@ async function requirePassword(tabId) {
 function switchToQcTab() {
   passwordVerified = false; // 인증 상태 초기화
   console.warn('보호된 탭 접근 실패. QC 탭으로 전환합니다.');
-
-  const qcTabElement = getTabElement('qc');
-
-  if (!qcTabElement) {
-    console.error('QC 탭 요소를 찾을 수 없습니다.');
-    return;
-  }
-
-  // Edge 브라우저 호환성을 고려한 탭 전환 로직
-  try {
-    // 1. URL 해시 직접 변경
-    window.location.hash = 'qc';
-
-    // 2. 탭 강제 클릭 (Edge 호환)
-    setTimeout(() => {
-      qcTabElement.classList.add('active');
-      qcTabElement.click(); // 강제 클릭 시도
-    }, 100);
-
-    // 3. Active 클래스 수동 추가 (Fallback)
-    document.querySelectorAll('.nav-link').forEach(tab => {
-      tab.classList.remove('active');
-    });
-    qcTabElement.classList.add('active');
-    localStorage.setItem('activeTab', 'qc');
-  } catch (error) {
-    console.error('QC 탭 전환 중 오류 발생:', error);
-    alert('QC 탭으로 이동하는 중 문제가 발생했습니다.');
-  }
+  activateTab(getTabElement('qc'), 'qc'); // QC 탭 활성화
 }
-
 
 // 🟢 탭 활성화
 function activateTab(tabElement, tabId) {
@@ -112,29 +83,18 @@ function getTabElement(tabId) {
 }
 
 // 🌟 탭이 보여질 때 암호 확인
-let isPasswordVerificationInProgress = false;
-
 async function handleTabShown(event) {
   const activatedTab = event.target; // 활성화된 탭 요소
   const tabId = activatedTab.id.replace('-tab', '');
 
   console.log('보여지는 탭 ID:', tabId);
 
-  if (!protectedTabs.includes(tabId)) {
-    return; // 보호되지 않은 탭이면 바로 반환
+  if (protectedTabs.includes(tabId)) {
+    const isPasswordValid = await requirePassword(tabId);
+    if (!isPasswordValid) {
+      switchToQcTab();
+    }
   }
-
-  // 이미 암호 확인 중이면 중복 실행 방지
-  if (isPasswordVerificationInProgress) return;
-  isPasswordVerificationInProgress = true;
-
-  const isPasswordValid = await requirePassword(tabId);
-
-  if (!isPasswordValid) {
-    switchToQcTab();
-  }
-
-  isPasswordVerificationInProgress = false;
 }
 
 // 🖥️ 페이지 로드 시 실행
@@ -154,7 +114,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     switchToQcTab();
   }
 
-  // 🟢 탭 활성화 이벤트 리스너 (shown.bs.tab만 사용)
+  // 🟢 탭 활성화 이벤트 리스너
   document.querySelectorAll('.nav-tabs .nav-link, .nav-pills .nav-link').forEach(tab => {
     tab.removeEventListener('shown.bs.tab', handleTabShown);
     tab.addEventListener('shown.bs.tab', handleTabShown);
@@ -174,7 +134,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // 📱 창 크기 조정
 window.addEventListener('resize', adjustTableForMobile);
-
 
 
 
