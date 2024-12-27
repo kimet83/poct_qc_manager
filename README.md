@@ -8,15 +8,15 @@
 저는 **Python (Quart)** 를 백엔드로 사용하고, **MariaDB**로 데이터를 관리하며, **Docker Compose**로 컨테이너화된 환경을 제공합니다.  
 주요 기능으로는 **장비 관리**, **Stick 관리**, **QC 결과 보고**, **결과 확인 및 수정**이 있으며, 웹 기반으로 효율적인 관리 시스템을 제공합니다.  
 혈당 측정기 관리 및 QC(정도 관리)를 위한 웹 애플리케이션이죠.  
-모바일웹의 경우 카메라를 사용한 **바코드 인식**으로 장비 및 Stick 인식이 가능합니다.
+모바일웹의 경우 카메라를 사용한 **바코드 인식**으로 장비 및 Stick 인식이 가능합니다.  
 Docker Compose를 사용해 손쉽게 실행하고 관리할 수 있어요. 🐳
 
 ---
 ## 🧩 **애플리케이션 지원 기기(확인된 장비)**
 
 ![Asan-Chek](https://www.asanpharm.co.kr/data/editor/2402//2e1f7fa0ab9f3a8c4cfb64a0a254acab_1708587151_5886.png)
-- Asan-Chek [홈페이지](https://asanpharm.co.kr/bbs/board.php?bo_table=product_01&wr_id=1869)
-- (확인 후 추가 예정)
+- Asan-Chek [홈페이지](https://asanpharm.co.kr/bbs/board.php?bo_table=product_01&wr_id=1869)  
+(확인 후 지원기기 추가 예정)
 ---
 
 ## 📂 **프로젝트 구조**
