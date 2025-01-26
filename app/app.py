@@ -18,12 +18,12 @@ import os
 app = Quart(__name__)
 
 # 환경 변수로 데이터베이스 설정
-DB_USER = os.getenv('DB_USER', 'myuser')
-DB_PASSWORD = os.getenv('DB_PASSWORD', 'mypassword')
-DB_HOST = os.getenv('DB_HOST', 'db')  # MariaDB 컨테이너 이름
+DB_USER = os.getenv('DATABASE_USER', 'myuser')
+DB_PASSWORD = os.getenv('DATABASE_PASSWORD', 'mypassword')
+DB_HOST = os.getenv('DATABASE_HOST', 'db')  # MariaDB 컨테이너 이름
 DB_PORT = os.getenv('DATABASE_EXTERNAL_PORT', '3306')
-DB_NAME = os.getenv('DB_NAME', 'mydatabase')
-DB_CHARSET = os.getenv('DB_CHARSET', 'utf8mb4')
+DB_NAME = os.getenv('DATABASE_NAME', 'mydatabase')
+DB_CHARSET = "utf8mb4"
 # 환경 변수에서 접근 암호 가져오기
 ACCESS_PASSWORD = os.getenv('ACCESS_PASSWORD', '1022')
 PROTECTED_TABS = os.getenv('PROTECTED_TABS', '').split(',')
