@@ -301,7 +301,7 @@ function loadReplaceSerialsForQc(placeCode) {
 
 // 외부정도관리 결과등록 장소 선택시 장비 리스트 갱신
 function loadReplaceSerialsForExQc(placeCode) {
-  const exDeviceSerialSelect = document.getElementById("exDeviceSerial"); // 외부정도관리의 장비 선택
+  const exDeviceSerialSelect = document.getElementById("exqcDeviceSerial"); // 외부정도관리의 장비 선택
 
   if (!exDeviceSerialSelect) return;
 
