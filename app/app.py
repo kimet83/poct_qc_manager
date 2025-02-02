@@ -65,6 +65,7 @@ class Place(Base):
     # 관계 설정
     devices = relationship('Device', back_populates='place')
     results = relationship('Result', back_populates='place')
+    exresults = relationship('ExResult', back_populates='place')
 
 # 테이블: Devices
 class Device(Base):
@@ -85,6 +86,7 @@ class Device(Base):
     # 관계 설정
     place = relationship('Place', back_populates='devices')
     results = relationship('Result', back_populates='device')
+    exresults = relationship('ExResult', back_populates='device')
 
 # 테이블: Sticks
 class Stick(Base):
@@ -101,6 +103,7 @@ class Stick(Base):
 
     # 관계 설정
     results = relationship('Result', back_populates='stick')
+    exresults = relationship('ExResult', back_populates='stick')
 
 class Signs(Base):
     __tablename__ = 'signs'
@@ -113,6 +116,7 @@ class Signs(Base):
 
     # Results와 역방향 관계
     results = relationship('Result', back_populates='sign')
+    exresults = relationship('ExResult', back_populates='sign')
 
 
 # 테이블: Results
@@ -162,10 +166,10 @@ class ExResult(Base):
     UpdatedAt = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
 
     # 관계 설정
-    sign = relationship('Signs', back_populates='exresults')
     device = relationship('Device', back_populates='exresults')
     place = relationship('Place', back_populates='exresults')
     stick = relationship('Stick', back_populates='exresults')
+    sign = relationship('Signs', back_populates='exresults')
 
 @app.before_serving
 async def setup_database():
