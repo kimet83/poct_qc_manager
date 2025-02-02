@@ -337,6 +337,24 @@ function openStickLotScannerforQc() {
     "width=400,height=400"
   );
 }
+// SerialForExqc 스캐너 열기
+function openSerialScannerforExqc() {
+  window.open(
+    "/barcode?type=SerialForExqc",
+    "Barcode Scanner",
+    "width=400,height=400"
+  );
+}
+
+// StickLotForExqc 스캐너 열기
+function openStickLotScannerforExqc() {
+  window.open(
+    "/barcode?type=StickLotForExqc",
+    "Barcode Scanner",
+    "width=400,height=400"
+  );
+}
+
 function formatExpToDate(exp) {
   if (exp.length === 6) {
     const year = `20${exp.slice(0, 2)}`; // 연도 (25 → 2025)
@@ -763,8 +781,14 @@ function deleteStick(stickLot) {
 // 대화상자 컨테이너에 추가된 시리얼 번호 저장
 let addedDeviceSerials = [];
 
+// 외부정도관리 대화상자 컨테이너에 추가된 시리얼 번호 저장
+let addedExDeviceSerials = [];
+
 // 현재 조회된 모든 장비의 Serial을 저장
 let availableDeviceSerials = [];
+
+// 현재 조회된 외부정도관리 모든 장비의 Serial을 저장
+let availableExDeviceSerials = [];
 
 // 장비 일괄추가 버튼 추가
 document.getElementById("bulkAddButton").addEventListener("click", () => {
@@ -1286,7 +1310,7 @@ document
       statusElement.textContent = `Unexpected error: ${error.message}`;
     }
   });
-  
+
 // 보고서 생성 함수
 function generateReport() {
   const startDate = document.getElementById("reportStartDate").value;
@@ -1630,6 +1654,17 @@ function loadPlaceList() {
           option.value = place.PlaceCode;
           option.textContent = place.PlaceName;
           placeSelect.appendChild(option);
+        });
+      } 
+      // 4. exqcPlaceSelect 드롭다운 업데이트
+       if (exqcPlaceSelect) {
+        exqcPlaceSelect.innerHTML =
+          '<option value="" disabled selected>장소를 선택하세요</option>';
+        data.forEach((place) => {
+          const option = document.createElement("option");
+          option.value = place.PlaceCode;
+          option.textContent = place.PlaceName;
+          exqcPlaceSelect.appendChild(option);
         });
       } else {
         console.warn("Warning: 'placeSelect' 요소를 찾을 수 없습니다.");

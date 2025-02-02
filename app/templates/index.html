@@ -207,21 +207,30 @@
 
       <!-- 정도관리 -->
       <div class="tab-pane fade" id="qc" role="tabpanel" aria-labelledby="qc-tab">
-        <h2>내부정도관리</h2>
+        <h2>정도관리</h2>
         <ul class="nav nav-pills my-3" id="qcSubTab" role="tablist">
           <li class="nav-item">
             <button class="nav-link active" id="qc-register-tab" data-bs-toggle="tab" data-bs-target="#qc-register"
-              type="button" role="tab">결과 등록</button>
+              type="button" role="tab">내부정도관리 결과 등록</button>
           </li>
           <li class="nav-item">
             <button class="nav-link" id="qc-check-tab" data-bs-toggle="tab" data-bs-target="#qc-check" type="button"
-              role="tab">결과 확인/수정</button>
+              role="tab">내부정도관리 결과 확인/수정</button>
           </li>
+          <li class="nav-item">
+            <button class="nav-link" id="exqc-register-tab" data-bs-toggle="tab" data-bs-target="#exqc-register" type="button"
+              role="tab">외부정도관리 결과 등록</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" id="exqc-check-tab" data-bs-toggle="tab" data-bs-target="#exqc-check" type="button"
+              role="tab">외부정도관리 결과 확인/수정</button>
+          </li>
+          
         </ul>
         <div class="tab-content">
           <!-- 결과 등록 -->
           <div id="qc-register" class="tab-pane fade show active" role="tabpanel" aria-labelledby="qc-register-tab">
-            <h3>결과 등록</h3>
+            <h3>내부정도관리 결과 등록</h3>
             <!-- 검사일 선택 -->
             <div class="mb-3">
               <label for="testDate" class="form-label">검사일</label>
@@ -288,7 +297,7 @@
 
           <!-- 결과 확인/수정 -->
           <div class="tab-pane fade" id="qc-check" role="tabpanel" aria-labelledby="qc-check-tab">
-            <h3>결과 확인/수정</h3>
+            <h3>내부정도관리 결과 확인/수정</h3>
             <p>기존 결과를 확인하거나 수정합니다.</p>
             <input type="date" id="qcDateSearch" class="form-control w-50 mb-3">
             <!-- 결과 목록 테이블 -->
@@ -319,6 +328,67 @@
             <button id="deleteUnusedSignsButton" class="btn btn-danger mt-3 hide-on-mobile">Delete Unused Signs</button>
             <div id="deleteUnusedSignsStatus" class="mt-2 hide-on-mobile"></div>
           </div>
+
+          <!-- 외부정도관리 결과 등록 -->
+          <div class="tab-pane fade" id="exqc-register" role="tabpanel" aria-labelledby="exqc-register-tab">
+            <h3>외부정도관리 결과 등록</h3>
+            <form id="exqcRegisterForm">
+              <div class="mb-3">
+                <label for="exqcTestDate" class="form-label">검사일</label>
+                <input type="date" class="form-control" id="exqcTestDate" required>
+                <label for="exqcPlaceSelect" class="form-label">장소</label>
+                <select class="form-control" id="exqcPlaceSelect" required>
+                  <option value="" disabled selected>장소를 선택하세요</option>
+                  <!-- 옵션 항목은 JavaScript로 동적으로 추가됩니다 -->
+                </select>
+                <label for="exqcStickLot" class="form-label">Stick Lot</label>
+                <select class="form-control" id="exqcStickLot" required>
+                  <option value="" disabled selected>Stick Lot을 선택하세요</option>
+                  <!-- 옵션 항목은 JavaScript로 동적으로 추가됩니다 -->
+                </select>
+                <button type="button" onclick="openStickLotScannerforExqc()">📷</button>
+                <label for="exqcDeviceSerial" class="form-label">장비번호</label>
+                <select class="form-control" id="exqcDeviceSerial" required>
+                  <option value="" disabled selected>장비를 선택하세요</option>
+                  <!-- 옵션 항목은 JavaScript로 동적으로 추가됩니다 -->
+                </select>
+                <button type="button" onclick="openDeviceSerialScannerforExqc()">📷</button>
+                <button id="addExqcDialogButton" class="btn btn-primary">+</button>
+                <button id="bulkAddExqcButton" class="btn btn-secondary">일괄추가</button>
+                <div id="exqcDialogContainer" class="mt-4"></div>
+                <button id="saveAllExqcButton" class="btn btn-success mt-3">일괄 저장</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- 외부정도관리 결과 확인/수정 -->
+          <div class="tab-pane fade" id="exqc-check" role="tabpanel" aria-labelledby="exqc-check-tab">
+            <h3>외부정도관리 결과 확인/수정</h3>
+            <input type="date" id="exqcDateSearch" class="form-control w-50 mb-3">
+            <!-- 결과 목록 테이블 -->
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>장비번호</th>
+                    <th>장소</th>
+                    <th class="hide-on-mobile">테스트 날짜</th>
+                    <th class="hide-on-mobile">Stick Lot</th>
+                    <th>1st Result</th>
+                    <th>2nd Result</th>
+                    <th>3rd Result</th>
+                    <th class="hide-on-mobile">서명</th>
+                    <th class="hide-on-mobile">비고</th>
+                    <th>수정/삭제</th>
+                  </tr>
+                </thead>
+                <tbody id="exqcResultsTableBody">
+                  <!-- 데이터가 렌더링됩니다 -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
       </div>
 
