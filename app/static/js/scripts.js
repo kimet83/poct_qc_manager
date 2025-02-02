@@ -345,7 +345,7 @@ function setupQcPlaceCodeChangeListener() {
 
 // 외부정도관리 메뉴의 PlaceCode 변경 시 이벤트 리스너 설정
 function setupExQcPlaceCodeChangeListener() {
-  const placeCodeElements = ["exPlaceSelect"]; // 외부정도관리 메뉴의 장소 선택
+  const placeCodeElements = ["exqcPlaceSelect"]; // 외부정도관리 메뉴의 장소 선택
   placeCodeElements.forEach((id) => {
     const element = document.getElementById(id);
     if (element) {
