@@ -298,6 +298,36 @@ function loadReplaceSerialsForQc(placeCode) {
     .catch((error) => console.error("Error fetching DeviceSerials:", error));
 }
 
+// 외부정도관리 결과등록 장소 선택시 장비 리스트 갱신
+function loadReplaceSerialsForExQc(placeCode) {
+  const exDeviceSerialSelect = document.getElementById("exDeviceSerial"); // 외부정도관리의 장비 선택
+
+  if (!exDeviceSerialSelect) return;
+
+  if (!placeCode) {
+    // PlaceCode가 선택되지 않은 경우 초기화
+    exDeviceSerialSelect.innerHTML =
+      '<option value="" disabled selected>장비를 선택하세요</option>';
+    return;
+  }
+
+  // exqcDeviceSerial 데이터 갱신
+  fetch(`/GetActiveSerials?placeCode=${placeCode}`)
+    .then((response) => response.json())
+    .then((data) => {
+      exDeviceSerialSelect.innerHTML =
+        '<option value="" disabled selected>장비를 선택하세요</option>'; // exqcDeviceSerial 기본 옵션 추가
+      availableExDeviceSerials = data.map((device) => device.Serial); // Serial 저장
+      data.forEach((device) => {
+        const option = document.createElement("option");
+        option.value = device.Serial;
+        option.textContent = device.Serial;
+        exDeviceSerialSelect.appendChild(option);
+      });
+    })
+    .catch((error) => console.error("Error fetching DeviceSerials:", error));
+}
+
 // 정도관리 메뉴의 PlaceCode 변경 시 이벤트 리스너 설정
 function setupQcPlaceCodeChangeListener() {
   const placeCodeElements = ["placeSelect"]; // 정도관리 메뉴의 장소 선택
@@ -307,6 +337,20 @@ function setupQcPlaceCodeChangeListener() {
       element.addEventListener("change", (event) => {
         const selectedPlaceCode = event.target.value;
         loadReplaceSerialsForQc(selectedPlaceCode);
+      });
+    }
+  });
+}
+
+// 외부정도관리 메뉴의 PlaceCode 변경 시 이벤트 리스너 설정
+function setupExQcPlaceCodeChangeListener() {
+  const placeCodeElements = ["exPlaceSelect"]; // 외부정도관리 메뉴의 장소 선택
+  placeCodeElements.forEach((id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.addEventListener("change", (event) => {
+        const selectedPlaceCode = event.target.value;
+        loadReplaceSerialsForExQc(selectedPlaceCode);
       });
     }
   });
@@ -626,14 +670,17 @@ function loadSticks() {
     })
     .then((data) => {
       const stickLotSelect = document.getElementById("stickLotSelect");
+      const exqcStickLot = document.getElementById("exqcStickLot");
       const tableBody = document.getElementById("sticks-table-body");
 
-      if (!stickLotSelect || !tableBody) {
+      if (!stickLotSelect || !tableBody || !exqcStickLot) {
         console.error("HTML 요소를 찾을 수 없습니다.");
         return;
       }
 
       stickLotSelect.innerHTML =
+        '<option value="" disabled selected>Stick Lot을 선택하세요</option>';
+      exqcStickLot.innerHTML =
         '<option value="" disabled selected>Stick Lot을 선택하세요</option>';
       tableBody.innerHTML = ""; // 기존 데이터 초기화
 
@@ -662,6 +709,12 @@ function loadSticks() {
         option.value = stick.StickLot;
         option.textContent = stick.StickLot;
         stickLotSelect.appendChild(option);
+
+        // 외부정도관리 Stick Lot 선택 옵션 추가
+        const exqcOption = document.createElement("option");
+        exqcOption.value = stick.StickLot;
+        exqcOption.textContent = stick.StickLot;
+        exqcStickLot.appendChild(exqcOption);
       });
     })
     .catch((error) => {

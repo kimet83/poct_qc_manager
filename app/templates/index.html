@@ -346,12 +346,14 @@
                   <option value="" disabled selected>Stick Lot을 선택하세요</option>
                   <!-- 옵션 항목은 JavaScript로 동적으로 추가됩니다 -->
                 </select>
-                <button type="button" onclick="openStickLotScannerforExqc()">📷</button>
-                <label for="exqcDeviceSerial" class="form-label">장비번호</label>
-                <select class="form-control" id="exqcDeviceSerial" required>
-                  <option value="" disabled selected>장비를 선택하세요</option>
-                  <!-- 옵션 항목은 JavaScript로 동적으로 추가됩니다 -->
-                </select>
+                <div class="mb-3">
+                  <button type="button" onclick="openStickLotScannerforExqc()">📷</button>
+                  <label for="exqcDeviceSerial" class="form-label">장비번호</label>
+                  <select class="form-control" id="exqcDeviceSerial" required>
+                    <option value="" disabled selected>장비를 선택하세요</option>
+                    <!-- 옵션 항목은 JavaScript로 동적으로 추가됩니다 -->
+                  </select>
+                </div>
                 <button type="button" onclick="openDeviceSerialScannerforExqc()">📷</button>
                 <button id="addExqcDialogButton" class="btn btn-primary">+</button>
                 <button id="bulkAddExqcButton" class="btn btn-secondary">일괄추가</button>
