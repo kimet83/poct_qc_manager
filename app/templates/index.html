@@ -635,6 +635,29 @@
     </div>
   </div>
 
+  <!-- 외부정도관리 서명 모달-->
+  <div class="modal fade" id="exSignModal" tabindex="-1" aria-labelledby="signModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="signModalLabel">서명 입력</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <canvas id="exSignatureCanvas" width="350" height="200" style="border: 1px solid #000;"></canvas>
+          <div class="text-center mt-3">
+            <button id="clearExSignature" class="btn btn-warning">서명 지우기</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+          <button id="saveExSignature" class="btn btn-primary">저장</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <!-- 서명 모달 -->
   <div class="modal fade" id="signModal" tabindex="-1" aria-labelledby="signModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
