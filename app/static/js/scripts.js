@@ -832,6 +832,21 @@ function deleteStick(stickLot) {
   }
 }
 
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadTodayExResultsCount(); // 🚀 처음 로드 시 시행 카운트 표시
+});
+
+async function loadTodayExResultsCount() {
+  try {
+    const response = await fetch("/GetTodayExResultsCount");
+    const result = await response.json();
+    document.getElementById("exCount").textContent = `외부정도관리 시행 Count: ${result.today_ex_results_count}`;
+  } catch (error) {
+    console.error("외부정도관리 시행 카운트 로드 오류:", error);
+    document.getElementById("exCount").textContent = "외부정도관리 시행 Count: 오류 발생";
+  }
+}
+
 // 대화상자 컨테이너에 추가된 시리얼 번호 저장
 let addedDeviceSerials = [];
 
@@ -1295,6 +1310,8 @@ document.getElementById("saveExSignature").addEventListener("click", async () =>
 
     if (!saveResponse.ok) throw new Error("결과 저장 실패");
     alert("결과가 성공적으로 저장되었습니다!");
+    // 🚀 외부정도관리 시행 카운트 즉시 업데이트
+    await loadTodayExResultsCount();
     window.location.reload();
   } catch (error) {
     console.error(error);

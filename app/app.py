@@ -653,6 +653,27 @@ async def get_qc_reagent():
         logging.error(f"예상치 못한 오류 발생: {traceback.format_exc()}")
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
+@app.route('/GetTodayExResultsCount', methods=['GET'])
+async def get_today_ex_results_count():
+    """
+    오늘 날짜의 외부정도관리 결과 개수를 반환하는 API
+    """
+    try:
+        today_date = datetime.today().date()  # 오늘 날짜 가져오기
+
+        async with SessionLocal() as session:
+            async with session.begin():
+                # 오늘 날짜에 해당하는 ExResult 개수 조회
+                query = select(func.count()).where(ExResult.TestDate == today_date)
+                result = await session.execute(query)
+                count = result.scalar()  # 개수 가져오기
+
+        return jsonify({"today_ex_results_count": count}), 200
+
+    except Exception as e:
+        logging.error(f"❌ GetTodayExResultsCount 오류 발생: {traceback.format_exc()}")
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+
 @app.route('/saveExResults', methods=['POST'])
 async def save_ex_results():
     """
