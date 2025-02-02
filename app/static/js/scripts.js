@@ -1278,6 +1278,7 @@ document.getElementById("saveExSignature").addEventListener("click", async () =>
       results.push({
         Serial: serial,
         StickLot: exqcStickLot,
+        TestDate: document.getElementById("exqcTestDate").value,
         FirstResult: document.getElementById(`firstResult-${serial}`).value,
         SecondResult: document.getElementById(`secondResult-${serial}`).value,
         ThirdResult: document.getElementById(`thirdResult-${serial}`).value,
