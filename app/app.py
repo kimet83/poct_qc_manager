@@ -653,6 +653,48 @@ async def get_qc_reagent():
         logging.error(f"예상치 못한 오류 발생: {traceback.format_exc()}")
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
+@app.route('/saveExResults', methods=['POST'])
+async def save_ex_results():
+    """
+    ExResults 데이터를 저장하는 엔드포인트
+    - 여러 결과 데이터를 저장합니다.
+    """
+    try:
+        # 클라이언트로부터 데이터 수신
+        data = await request.json
+        ex_results = data.get('results', [])
+
+        if not ex_results:
+            return jsonify({"error": "No results provided"}), 400
+
+        async with SessionLocal() as session:
+            async with session.begin():
+                for result_data in ex_results:
+                    # ExResult 객체 생성 및 데이터 매핑
+                    new_result = ExResult(
+                        Serial=result_data.get('Serial'),
+                        PlaceCode=result_data.get('PlaceCode'),
+                        TestDate=result_data.get('TestDate'),
+                        StickLot=result_data.get('StickLot'),
+                        FirstResult=result_data.get('FirstResult'),
+                        SecondResult=result_data.get('SecondResult'),
+                        ThirdResult=result_data.get('ThirdResult'),
+                        Comment=result_data.get('Comment'),
+                        SignUuid=result_data.get('SignUuid'),
+                    )
+
+                    # 데이터베이스에 추가
+                    session.add(new_result)
+
+                # 모든 데이터 커밋
+                await session.commit()
+
+        return jsonify({"message": "ExResults saved successfully"}), 201
+
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+
+
 @app.route('/saveResults', methods=['POST'])
 async def save_results():
     """
