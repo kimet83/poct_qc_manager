@@ -144,6 +144,29 @@ class Result(Base):
     stick = relationship('Stick', back_populates='results')
     sign = relationship('Signs', back_populates='results')
 
+# 테이블: exresults
+class ExResult(Base):
+    __tablename__ = 'exresults'
+
+    ExResultId = Column(Integer, primary_key=True, autoincrement=True)
+    Serial = Column(String(50), ForeignKey('devices.Serial', ondelete='CASCADE'), nullable=False)
+    PlaceCode = Column(String(50), ForeignKey('places.PlaceCode', ondelete='SET NULL'), nullable=True)
+    TestDate = Column(Date, nullable=False)
+    StickLot = Column(String(50), ForeignKey('sticks.StickLot', ondelete='SET NULL'), nullable=True)
+    FirstResult = Column(Integer, nullable=True)
+    SecondResult = Column(Integer, nullable=True)
+    ThirdResult = Column(Integer, nullable=True)
+    Comment = Column(Text, nullable=True)
+    SignUuid = Column(CHAR(36), ForeignKey('signs.SignUuid', ondelete='SET NULL'))
+    CreatedAt = Column(TIMESTAMP, server_default=func.now())
+    UpdatedAt = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+
+    # 관계 설정
+    sign = relationship('Signs', back_populates='exresults')
+    device = relationship('Device', back_populates='exresults')
+    place = relationship('Place', back_populates='exresults')
+    stick = relationship('Stick', back_populates='exresults')
+
 @app.before_serving
 async def setup_database():
     """데이터베이스 및 테이블 설정"""
