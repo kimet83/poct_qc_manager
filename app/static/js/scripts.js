@@ -165,6 +165,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   setDefaultDates();
   setupPlaceCodeChangeListener();
   setupQcPlaceCodeChangeListener();
+  setupExQcPlaceCodeChangeListener();
   loadQcReagent();
   loadQcResults();
   adjustTableForMobile();
