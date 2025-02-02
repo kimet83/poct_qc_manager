@@ -670,6 +670,15 @@ async def save_ex_results():
         async with SessionLocal() as session:
             async with session.begin():
                 for result_data in ex_results:
+                    # 데이터 유효성 검사
+                    if not all([
+                        result_data.get('Serial'),
+                        result_data.get('StickLot'),
+                        result_data.get('TestDate')
+                    ]):
+                        logging.error(f"🚨 데이터 누락 오류: {result_data}")
+                        return jsonify({"error": "Missing required fields"}), 400
+
                     # ExResult 객체 생성 및 데이터 매핑
                     new_result = ExResult(
                         Serial=result_data.get('Serial'),
@@ -685,6 +694,9 @@ async def save_ex_results():
 
                     # 데이터베이스에 추가
                     session.add(new_result)
+                    await session.flush()  # 데이터가 정상적으로 INSERT 되는지 확인
+
+                    logging.info(f"✅ ExResult 저장됨: {new_result}")
 
                 # 모든 데이터 커밋
                 await session.commit()
@@ -692,6 +704,7 @@ async def save_ex_results():
         return jsonify({"message": "ExResults saved successfully"}), 201
 
     except Exception as e:
+        logging.error(f"❌ saveExResults 오류 발생: {traceback.format_exc()}")
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 
