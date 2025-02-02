@@ -874,16 +874,17 @@ async def delete_result(result_id):
 @app.route('/DeleteUnusedSigns', methods=['DELETE'])
 async def delete_unused_signs():
     """
-    Deletes unused signs from the database where they are not referenced in the results table.
+    Deletes unused signs from the database where they are not referenced in the results or exresults table.
     """
     try:
         async with SessionLocal() as session:
             async with session.begin():
-                # Query to find unused SignUuids
+                # Query to find unused SignUuids (not used in results or exresults)
                 unused_signs_query = (
                     select(Signs.SignUuid)
                     .outerjoin(Result, Signs.SignUuid == Result.SignUuid)
-                    .where(Result.SignUuid == None)
+                    .outerjoin(ExResult, Signs.SignUuid == ExResult.SignUuid)
+                    .where(and_(Result.SignUuid == None, ExResult.SignUuid == None))
                 )
 
                 # Delete unused signs
@@ -893,6 +894,7 @@ async def delete_unused_signs():
 
         return jsonify({"message": "Unused signs deleted successfully."}), 200
     except Exception as e:
+        logging.error(f"Error deleting unused signs: {traceback.format_exc()}")
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 @app.route('/generateReport', methods=['POST'])
