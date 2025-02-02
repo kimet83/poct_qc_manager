@@ -1590,6 +1590,7 @@ function loadPlaceList() {
   const tableBody = document.getElementById("place-table-body");
   const registerPlaceSelect = document.getElementById("registerPlaceCode");
   const placeSelect = document.getElementById("placeSelect");
+  const exqcPlaceSelect = document.getElementById("exqcPlaceSelect");
 
   fetch("/GetPlaces")
     .then((response) => {
