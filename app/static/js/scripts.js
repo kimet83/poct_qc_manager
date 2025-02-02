@@ -976,16 +976,7 @@ function createExDialog(serial) {
   
 }
 
-// 외부정도관리 대화상자 삭제 함수
-function removeExDialog(serial) {
-  const dialogContainer = document.getElementById("exDialogContainer");
-  const dialog = document.getElementById(`exDialog-${serial}`);
 
-  if (dialog) {
-    dialogContainer.removeChild(dialog);
-    addedExDeviceSerials = addedExDeviceSerials.filter((item) => item !== serial); // 시리얼 번호 목록에서 제거
-  }
-}
 
 
 // 대화상자 생성 함수
@@ -1077,6 +1068,17 @@ function createDialog(serial) {
       }
     });
   });
+}
+
+// 외부정도관리 대화상자 삭제 함수
+function removeExDialog(serial) {
+  const dialogContainer = document.getElementById("exDialogContainer");
+  const dialog = document.getElementById(`exDialog-${serial}`);
+
+  if (dialog) {
+    dialogContainer.removeChild(dialog);
+    addedExDeviceSerials = addedExDeviceSerials.filter((item) => item !== serial); // 시리얼 번호 목록에서 제거
+  }
 }
 
 // 대화상자 삭제 함수
