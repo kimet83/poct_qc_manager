@@ -867,6 +867,29 @@ document.getElementById("bulkAddButton").addEventListener("click", () => {
   alert("모든 장비가 추가되었습니다.");
 });
 
+// 외부정도관리 장비 일괄추가 버튼 추가
+document.getElementById("exBulkAddButton").addEventListener("click", () => {
+  const exqcStickLot = document.getElementById("exqcStickLot");
+  const selectedStickLot = exqcStickLot.value;
+  if (!selectedStickLot) {
+    alert("Stick Lot를 선택해주세요.");
+    return;
+  }
+  if (availableExDeviceSerials.length === 0) {
+    alert("등록된 장비가 없습니다.");
+    return;
+  }
+
+  availableExDeviceSerials.forEach((serial) => {
+    if (!addedExDeviceSerials.includes(serial)) {
+      addedExDeviceSerials.push(serial); // 추가된 장비 추적
+      createExDialog(serial); // 대화상자 생성
+    }
+  });
+
+  alert("모든 장비가 추가되었습니다.");
+});
+
 // 대화상자 생성
 document.getElementById("addDialogButton").addEventListener("click", () => {
   const deviceSerialSelect = document.getElementById("deviceSerialSelect");
@@ -890,6 +913,80 @@ document.getElementById("addDialogButton").addEventListener("click", () => {
   addedDeviceSerials.push(selectedSerial);
   createDialog(selectedSerial);
 });
+
+// 외부정도관리 대화상자 생성
+document.getElementById("exAddDialogButton").addEventListener("click", () => {
+  const exqcDeviceSerial = document.getElementById("exqcDeviceSerial");
+  const selectedSerial = exqcDeviceSerial.value;
+  const exqcStickLot = document.getElementById("exqcStickLot");
+  const selectedStickLot = exqcStickLot.value;
+  if (!selectedStickLot) {
+    alert("Stick Lot를 선택해주세요.");
+    return;
+  }
+  if (!selectedSerial) {
+    alert("장비를 선택하세요.");
+    return;
+  }
+
+  if (addedExDeviceSerials.includes(selectedSerial)) {
+    alert("이미 추가된 장비입니다.");
+    return;
+  }
+
+  addedExDeviceSerials.push(selectedSerial);
+  createExDialog(selectedSerial);
+});
+
+// 외부정도관리 대화상자 생성 함수
+function createExDialog(serial) {
+  const dialogContainer = document.getElementById("exDialogContainer");
+
+  const dialog = document.createElement("div");
+  dialog.className = "card p-3 mb-3";
+  dialog.id = `exDialog-${serial}`;
+
+  dialog.innerHTML = `
+<div class="card-body">
+  <div class="d-flex justify-content-between align-items-center">
+    <h5 class="card-title">장비: ${serial}</h5>
+    <button class="btn btn-danger btn-sm" onclick="removeExDialog('${serial}')">-</button>
+  </div>
+  <div class="mb-3">
+    <label for="firstResult-${serial}" class="form-label">1st Result</label>
+    <input type="tel" class="form-control" id="firstResult-${serial}" placeholder="첫번째 Result 값을 입력하세요">
+  </div> 
+  <div class="mb-3">
+    <label for="secondResult-${serial}" class="form-label">2nd Result</label>
+    <input type="tel" class="form-control" id="secondResult-${serial}" placeholder="두번째 Result 값을 입력하세요">
+  </div> 
+  <div class="mb-3">
+    <label for="thirdResult-${serial}" class="form-label">3rd Result</label>
+    <input type="tel" class="form-control" id="thirdResult-${serial}" placeholder="세번째 Result 값을 입력하세요">
+  </div>
+  <div class="mb-3">
+    <label for="exComment-${serial}" class="form-label">비고</label>
+    <textarea class="form-control" id="exComment-${serial}" rows="3"></textarea>
+  </div>
+</div>
+`;
+
+  dialogContainer.appendChild(dialog);
+
+  
+}
+
+// 외부정도관리 대화상자 삭제 함수
+function removeExDialog(serial) {
+  const dialogContainer = document.getElementById("exDialogContainer");
+  const dialog = document.getElementById(`exDialog-${serial}`);
+
+  if (dialog) {
+    dialogContainer.removeChild(dialog);
+    addedExDeviceSerials = addedExDeviceSerials.filter((item) => item !== serial); // 시리얼 번호 목록에서 제거
+  }
+}
+
 
 // 대화상자 생성 함수
 function createDialog(serial) {
@@ -993,6 +1090,10 @@ function removeDialog(serial) {
   }
 }
 
+// 외부정도관리 서명 캔버스 설정
+const exSignatureCanvas = document.getElementById("exSignatureCanvas");
+const exCtx = exSignatureCanvas.getContext("2d");
+
 // 서명 캔버스 설정
 const signatureCanvas = document.getElementById("signatureCanvas");
 const ctx = signatureCanvas.getContext("2d");
@@ -1016,11 +1117,36 @@ function getPointerPosition(event) {
   }
 }
 
+// 외부정도관리 이벤트 헬퍼 함수
+function getExPointerPosition(event) {
+  if (event.touches && event.touches[0]) {
+    // 터치 이벤트
+    const rect = exSignatureCanvas.getBoundingClientRect();
+    return {
+      x: event.touches[0].clientX - rect.left,
+      y: event.touches[0].clientY - rect.top,
+    };
+  } else {
+    // 마우스 또는 포인터 이벤트
+    return {
+      x: event.offsetX,
+      y: event.offsetY,
+    };
+  }
+}
+
 // 서명 시작
 function startDrawing(event) {
   isDrawing = true;
   const { x, y } = getPointerPosition(event);
   ctx.moveTo(x, y);
+}
+
+// 외부정도관리 서명 시작
+function exStartDrawing(event) { 
+  isDrawing = true;
+  const { x, y } = getExPointerPosition(event);
+  exCtx.moveTo(x, y);
 }
 
 // 서명 중
@@ -1031,10 +1157,24 @@ function draw(event) {
   ctx.stroke();
 }
 
+// 외부정도관리 서명 중
+function exDraw(event) {
+  if (!isDrawing) return;
+  const { x, y } = getExPointerPosition(event);
+  exCtx.lineTo(x, y);
+  exCtx.stroke();
+}
+
 // 서명 종료
 function stopDrawing() {
   isDrawing = false;
   ctx.beginPath(); // 새로운 경로 시작
+}
+
+// 외부정도관리 서명 종료
+function exStopDrawing() {
+  isDrawing = false;
+  exCtx.beginPath(); // 새로운 경로 시작
 }
 
 // 서명 초기화 버튼
@@ -1042,11 +1182,36 @@ document.getElementById("clearSignature").addEventListener("click", () => {
   ctx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
 });
 
+// 외부정도관리 서명 초기화 버튼
+document.getElementById("clearExSignature").addEventListener("click", () => {
+  exCtx.clearRect(0, 0, exSignatureCanvas.width, exSignatureCanvas.height);
+});
+
 // 이벤트 리스너 등록
 signatureCanvas.addEventListener("mousedown", startDrawing);
 signatureCanvas.addEventListener("mousemove", draw);
 signatureCanvas.addEventListener("mouseup", stopDrawing);
 signatureCanvas.addEventListener("mouseout", stopDrawing);
+
+// 외부정도관리 이벤트 리스너 등록
+exSignatureCanvas.addEventListener("mousedown", exStartDrawing);
+exSignatureCanvas.addEventListener("mousemove", exDraw);
+exSignatureCanvas.addEventListener("mouseup", exStopDrawing);
+exSignatureCanvas.addEventListener("mouseout", exStopDrawing);
+
+// 외부정도관리 모바일 터치 이벤트
+exSignatureCanvas.addEventListener("touchstart", (event) => {
+  event.preventDefault(); // 터치 스크롤 방지
+  exStartDrawing(event);
+});
+exSignatureCanvas.addEventListener("touchmove", (event) => {
+  event.preventDefault(); // 터치 스크롤 방지
+  exDraw(event);
+});
+exSignatureCanvas.addEventListener("touchend", (event) => {
+  event.preventDefault(); // 터치 스크롤 방지
+  exStopDrawing(event);
+});
 
 // 모바일 터치 이벤트
 signatureCanvas.addEventListener("touchstart", (event) => {
@@ -1062,6 +1227,19 @@ signatureCanvas.addEventListener("touchend", (event) => {
   stopDrawing(event);
 });
 
+// 외부정도관리 저장 버튼 클릭 시 서명 모달 표시
+document.getElementById("saveExAllButton").addEventListener("click", () => {
+  const exqcStickLot = document.getElementById("exqcStickLot").value;
+
+  if (!exqcStickLot) {
+    alert("Stick Lot을 선택하세요.");
+    return;
+  }
+
+  const signModal = new bootstrap.Modal(document.getElementById("exSignModal"));
+  signModal.show();
+});
+
 // 저장 버튼 클릭 시 서명 모달 표시
 document.getElementById("saveAllButton").addEventListener("click", () => {
   const qcLot = document.getElementById("qcLot").value;
@@ -1074,6 +1252,51 @@ document.getElementById("saveAllButton").addEventListener("click", () => {
 
   const signModal = new bootstrap.Modal(document.getElementById("signModal"));
   signModal.show();
+});
+
+// 외부정도관리 서명 저장 및 결과 저장
+document.getElementById("saveExSignature").addEventListener("click", async () => {
+  const imageData = exSignatureCanvas.toDataURL("image/png");
+  const exqcStickLot = document.getElementById("exqcStickLot").value;
+
+  try {
+    // 서명 이미지 서버 저장
+    const signResponse = await fetch("/saveSign", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: imageData }),
+    });
+
+    if (!signResponse.ok) throw new Error("서명 저장 실패");
+    const { signUuid } = await signResponse.json();
+
+    // 대화상자 데이터 수집 및 저장
+    const results = [];
+    addedExDeviceSerials.forEach((serial) => {
+      results.push({
+        Serial: serial,
+        StickLot: exqcStickLot,
+        FirstResult: document.getElementById(`firstResult-${serial}`).value,
+        SecondResult: document.getElementById(`secondResult-${serial}`).value,
+        ThirdResult: document.getElementById(`thirdResult-${serial}`).value,
+        Comment: document.getElementById(`exComment-${serial}`).value,
+        SignUuid: signUuid,
+      });
+    });
+
+    const saveResponse = await fetch("/saveExResults", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ results }),
+    });
+
+    if (!saveResponse.ok) throw new Error("결과 저장 실패");
+    alert("결과가 성공적으로 저장되었습니다!");
+    window.location.reload();
+  } catch (error) {
+    console.error(error);
+    alert("저장 중 오류가 발생했습니다.");
+  }
 });
 
 // 서명 저장 및 결과 저장
