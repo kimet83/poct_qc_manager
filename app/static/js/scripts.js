@@ -282,8 +282,12 @@ function loadReplaceSerialsForQc(placeCode) {
     return;
   }
 
+   // 체크박스 상태 확인
+  const includeTested = document.getElementById("includeTestedDevices")?.checked;
+  const queryParam = includeTested ? "&includeTested=true" : "&includeTested=false";
+ 
   // DeviceSerial 데이터 갱신
-  fetch(`/GetActiveSerials?placeCode=${placeCode}`)
+  fetch(`/GetActiveSerials?placeCode=${placeCode}${queryParam}`)
     .then((response) => response.json())
     .then((data) => {
       deviceSerialSelect.innerHTML =
@@ -341,6 +345,14 @@ function setupQcPlaceCodeChangeListener() {
       });
     }
   });
+  // includeTestedDevices 체크박스 변경 시 장비 리스트 갱신
+  const checkbox = document.getElementById("includeTestedDevices");
+  if (checkbox) {
+    checkbox.addEventListener("change", () => {
+      const selectedPlaceCode = document.getElementById("placeSelect").value;
+      loadReplaceSerialsForQc(selectedPlaceCode);
+    });
+  }
 }
 
 // 외부정도관리 메뉴의 PlaceCode 변경 시 이벤트 리스너 설정

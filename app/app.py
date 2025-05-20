@@ -306,21 +306,29 @@ async def delete_place(place_id):
 
 @app.route('/GetActiveSerials', methods=['GET'])
 async def get_active_serials():
-    """IsActive가 1이고 PlaceCode가 일치하는 ActiveSerial 목록 반환"""
-    place_code = request.args.get('placeCode')  # 쿼리 파라미터로 PlaceCode 가져오기
+    """
+    IsActive가 1이고 PlaceCode가 일치하는 ActiveSerial 목록 반환
+    includeTested=false 이고 testDate가 주어지면, 해당 날짜에 이미 결과가 있는 장비는 제외
+    """
+    place_code = request.args.get('placeCode')
+    include_tested = request.args.get('includeTested', 'true').lower() == 'true'
+    test_date = request.args.get('testDate')
+ # 쿼리 파라미터로 PlaceCode 가져오기
     if not place_code:
-        return jsonify([])  # PlaceCode가 없으면 빈 목록 반환
+        return jsonify([])  
 
     async with SessionLocal() as session:
         async with session.begin():
-            query = select(Device).where(
-                Device.IsActive == True,
-                Device.PlaceCode == place_code
-            ).order_by(asc(Device.Serial))  # Serial 기준 오름차순 정렬
+            query = select(Device).where(Device.IsActive == True, Device.PlaceCode == place_code).order_by(asc(Device.Serial))
             result = await session.execute(query)
             devices = result.scalars().all()
+            if not include_tested and test_date:
+                result2 = await session.execute(
+                    select(Result.Serial).where(Result.TestDate == test_date)
+                )
+                tested_serials = {row[0] for row in result2.all()}
+                devices = [d for d in devices if d.Serial not in tested_serials]
 
-            # 데이터를 JSON 형태로 변환
             serial_list = [{"Serial": device.Serial} for device in devices]
             return jsonify(serial_list)
 
